@@ -29,12 +29,12 @@ export default class DrilldownLineChart extends React.PureComponent<IProps, ISta
                         .x( (data: ILineSeries) => xScale(data.time) )
                         .y0(drawableHeight)
                         .y1( (data: ILineSeries) => yScale(data.value) )
-                        .curve(d3.curveCatmullRom.alpha(0));
+                        .curve(d3.curveBasis);
 
         let line = d3.line<ILineSeries>()
                         .x( (data: ILineSeries) => xScale(data.time) )
                         .y( (data: ILineSeries) => yScale(data.value) )
-                        .curve(d3.curveCatmullRom.alpha(0));
+                        .curve(d3.curveBasis);
 
         this.setState({
             margin: margin,
@@ -94,6 +94,14 @@ export default class DrilldownLineChart extends React.PureComponent<IProps, ISta
             .datum(list)
             .attr('class', 'line')
             .attr('d', line);
+        // g.append('path')
+        //     .datum(list)
+        //     .attr('class', 'line')
+        //     .attr('d', line)
+        //     .transition()
+        //         .duration(500)
+        //         .ease(d3.easeLinear)
+        //         .on("start", tick);
     }
 
     componentWillMount() {

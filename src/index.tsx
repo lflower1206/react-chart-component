@@ -1,8 +1,10 @@
 import * as React from 'react'
 import * as ReactDOM from 'react-dom'
-import DrilldownLineChart from './components/DrilldownLineChart/'
+
+import DrilldownLineChartContainer from './components/DrilldownLineChart/container'
+import { ILineSeries } from './components/DrilldownLineChart/model';
 
 ReactDOM.render(
-    <DrilldownLineChart svgWidth={500} svgHeight={500} />,
+    <DrilldownLineChartContainer />,
     document.getElementById('root')
 );

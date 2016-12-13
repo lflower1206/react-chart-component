@@ -1,46 +1,14 @@
 import { IProps, IState, ILineSeries } from './model';
 
-import { List } from 'immutable';
 import * as React from 'react';
 import * as d3 from 'd3';
 
 export default class DrilldownLineChart extends React.PureComponent<IProps, IState> {
 
     svg: SVGElement
-    data: List<ILineSeries>
 
     constructor(props: IProps) {
         super(props);
-    }
-
-    _generateData(): List<ILineSeries> {
-
-        let list = List<ILineSeries>();
-
-        let now = Date.now();
-
-        for (let i = 0 ; i < 6 ; i++) {
-
-            list = list.push({
-                time: now - (i * 10), 
-                value: Math.floor(Math.random() * 100)
-            });
-        }
-
-        return list;
-    }
-
-    _updateData(list: List<ILineSeries>): List<ILineSeries> {
-        let newList = list.shift();
-        let lastData = newList.get(newList.size);
-        let lastTime = lastData.time;
-
-        newList = newList.push( {
-            time: lastTime + 10,
-            value: Math.floor(Math.random() * 100)
-        });
-
-        return newList;
     }
 
     _calculate() {
@@ -56,46 +24,51 @@ export default class DrilldownLineChart extends React.PureComponent<IProps, ISta
     
         let yScale = d3.scaleLinear()
                         .range([drawableHeight, 0]);
+                        
+        var area = d3.area<ILineSeries>()
+                        .x( (data: ILineSeries) => xScale(data.time) )
+                        .y0(drawableHeight)
+                        .y1( (data: ILineSeries) => yScale(data.value) )
+                        .curve(d3.curveCatmullRom.alpha(0));
 
         let line = d3.line<ILineSeries>()
-                        .x((data:ILineSeries) => data.time)
-                        .y((data:ILineSeries) => data.value);
+                        .x( (data: ILineSeries) => xScale(data.time) )
+                        .y( (data: ILineSeries) => yScale(data.value) )
+                        .curve(d3.curveCatmullRom.alpha(0));
 
         this.setState({
-            data: this._generateData(),
             margin: margin,
             xScale: xScale,
             yScale: yScale,
             drawableHeight: drawableHeight,
             drawableWidth: drawableWidth,
-            line: line
+            line: line,
+            area: area
         });
     }
 
     _draw() {
 
-        let list: ILineSeries[] = this.state.data.toArray();
+        let list: ILineSeries[] = this.props.data.toArray();
 
         let xScale = this.state.xScale;
         let yScale = this.state.yScale;
         let line = this.state.line;
+        let area = this.state.area;
 
         let svg = d3.select(this.svg)
                     .attr('width', this.props.svgWidth)
                     .attr('height', this.props.svgHeight);
         
-        let g = svg.append('g').attr('transform', 'translate(' + this.state.margin.left + ',' + this.state.margin.top + ')');
+        let g = svg.append('g')
+                    .attr('transform', 'translate(' + this.state.margin.left + ',' + this.state.margin.top + ')');
 
-        xScale.domain(d3.extent(list, (data) => {
-            console.log('xScale');
-            console.log(data);
-            return data.time;
-        } ));
-        yScale.domain(d3.extent(list, (data) => {
-            console.log('yScale');
-            console.log(data);
-            return data.value;
-        }));
+        xScale.domain([list[0].time, list[list.length -1].time]);
+
+        // yScale.domain(d3.extent(list, (data) => {
+        //     return data.value;
+        // }));
+        yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
 
         g.append('g')
             .attr('class', 'axis axis--x')
@@ -110,8 +83,12 @@ export default class DrilldownLineChart extends React.PureComponent<IProps, ISta
             .attr('transform', 'rotate(-90)')
             .attr('y', 6)
             .attr('dy', '0.71em')
-            .style('text-anchor', 'end')
-            .text('Price ($)');
+            .style('text-anchor', 'end');
+            
+        g.append('path')
+            .datum(list)
+            .attr('class', 'area')
+            .attr('d', area);
 
         g.append('path')
             .datum(list)
@@ -124,6 +101,10 @@ export default class DrilldownLineChart extends React.PureComponent<IProps, ISta
     }
 
     componentDidMount() {
+        this._draw();
+    }
+
+    componentDidUpdate() {
         this._draw();
     }
 

@@ -10,22 +10,22 @@ interface margin {
 }
 
 export interface ILineSeries {
-    time: number, 
+    time: Date, 
     value: number
 }
 
 export interface IProps {
     svgWidth ?: number
     svgHeight ?: number
-    data ?: List<ILineSeries>
+    data : List<ILineSeries>
 };
 
 export interface IState {
-    data : List<ILineSeries>,
-    margin ?: margin,
-    drawableHeight ?: number,
-    drawableWidth ?: number,
-    xScale ?: ScaleTime<number, number>,
-    yScale ?: ScaleLinear<number, number>,
-    line ?: Line<ILineSeries>
+    margin : margin,
+    drawableHeight : number,
+    drawableWidth : number,
+    xScale : ScaleTime<number, number>,
+    yScale : ScaleLinear<number, number>,
+    line : Line<ILineSeries>,
+    area : Line<ILineSeries>
 }

@@ -12,7 +12,8 @@
         "types": [
             "core-js",
             "react",
-            "react-dom"
+            "react-dom",
+            "d3"
         ]
     },
     "exclude": [

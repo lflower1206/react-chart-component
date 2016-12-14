@@ -14,8 +14,8 @@ export default class DrilldownLineChartContainer extends React.PureComponent<any
 
         for (let i = 0 ; i < 12 ; i++) {
             list = list.push({
-                time: new Date(now - (i * 5000)), 
-                value: Math.floor(Math.random() * 100)
+                time: new Date(now + (i * 5000)), 
+                value: Math.floor(Math.random() * 10)
             });
         }
 
@@ -29,7 +29,7 @@ export default class DrilldownLineChartContainer extends React.PureComponent<any
 
         newList = newList.push( {
             time: new Date(lastTime + 5000),
-            value: Math.floor(Math.random() * 100)
+            value: Math.floor(Math.random() * 10)
         });
 
         return newList;
@@ -42,12 +42,13 @@ export default class DrilldownLineChartContainer extends React.PureComponent<any
     }
 
     componentDidMount() {
-        // setTimeout(() => {
-        //     let state = this._updateData(this.state.data);
-        //     this.setState({
-        //         data: state
-        //     });
-        // }, 1000);
+        setInterval(() => {
+            let data = this._updateData(this.state.data);
+            console.log(data.size);
+            this.setState({
+                data: data
+            });
+        }, 3000);
     }
 
     render() {

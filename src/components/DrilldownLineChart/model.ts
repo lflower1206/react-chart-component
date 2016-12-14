@@ -1,4 +1,5 @@
 import { ScaleTime, ScaleLinear } from 'd3-scale';
+import { BaseType, Selection } from 'd3-selection';
 import { Line } from 'd3-shape';
 import { List } from 'immutable';
 
@@ -27,5 +28,9 @@ export interface IState {
     xScale : ScaleTime<number, number>,
     yScale : ScaleLinear<number, number>,
     line : Line<ILineSeries>,
-    area : Line<ILineSeries>
+    area : Line<ILineSeries>,
+    linePath ?: Selection<BaseType, ILineSeries[], null, undefined>,
+    areaPath ?: Selection<BaseType, ILineSeries[], null, undefined>,
+    axisBottom ?: Selection<BaseType, {}, null, undefined>,
+    axisLeft ?: Selection<BaseType, {}, null, undefined>
 }

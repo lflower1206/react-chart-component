@@ -149,10 +149,7 @@ export default class DrilldownLineChart extends React.PureComponent<IProps, ISta
 
     render() {
         return (
-            <div>
-                <h1>Hello Drilldown</h1>
-                <svg ref={ (svg) => { this.svg = svg; } }></svg>
-            </div>
+            <svg ref={ (svg) => { this.svg = svg; } }></svg>
         );
     }
 }

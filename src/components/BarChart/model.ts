@@ -1,4 +1,5 @@
 import { ScaleBand, ScaleLinear } from 'd3-scale';
+import { BaseType, Selection } from 'd3-selection';
 import { List } from 'immutable';
 
 interface margin {
@@ -24,5 +25,8 @@ export interface IState {
     drawableHeight : number,
     drawableWidth : number,
     xScale : ScaleBand<string>,
-    yScale : ScaleLinear<number, number>
+    yScale : ScaleLinear<number, number>,
+    axisBottom ?: Selection<BaseType, {}, null, undefined>,
+    axisLeft ?: Selection<BaseType, {}, null, undefined>,
+    bars ?: Selection<BaseType, {}, null, undefined>
 }

@@ -44,7 +44,6 @@ export default class DrilldownLineChartContainer extends React.PureComponent<any
     componentDidMount() {
         setInterval(() => {
             let data = this._updateData(this.state.data);
-            console.log(data.size);
             this.setState({
                 data: data
             });

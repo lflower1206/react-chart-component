@@ -20,10 +20,29 @@ export default class DrilldownLineChartContainer extends React.PureComponent<any
         return list;
     }
 
+    _updateData(list: List<IBarData>): List<IBarData> {
+        
+        let newList = list.map<IBarData>((data) => {
+            data['value'] = Math.floor(Math.random() * 10);
+            return data;
+        }).toList();
+
+        return newList;
+    }
+
     componentWillMount() {
         this.setState({
             data: this._generateData()
         });
+    }
+
+    componentDidMount() {
+        setInterval(() => {
+            let data = this._updateData(this.state.data);
+            this.setState({
+                data: data
+            });
+        }, 3000);
     }
     
     render() {

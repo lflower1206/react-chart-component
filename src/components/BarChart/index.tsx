@@ -68,7 +68,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
             .attr('dy', '0.71em')
             .style('text-anchor', 'end');
 
-        g.selectAll('.bar')
+        let bars = g.selectAll('.bar')
             .data(list)
             .enter()
                 .append('rect')
@@ -77,7 +77,34 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
                 .attr('width', xScale.bandwidth())
                 .attr('y', (data) => yScale(data.value) )
                 .attr('height', (data) => drawableHeight - yScale(data.value) );
+
+        state.axisBottom = axisBottom;
+        state.axisLeft = axisLeft;
+        state.bars = bars;
+        this.setState(state);
         
+    }
+
+    _repaint() {
+        let state: IState = this.state;
+        let list: IBarData[] = this.props.data.toArray();
+        let xScale = state.xScale;
+        let yScale = state.yScale;
+        let drawableHeight = state.drawableHeight;
+        let axisLeft = state.axisLeft;
+        let bars = state.bars;
+
+        yScale.domain([0, d3.max<IBarData>(list, (data) => data.value * 1.5 )]);
+
+        axisLeft.call(d3.axisLeft(yScale));
+
+        bars.data(list)
+            .transition()
+            .duration(500)
+                .attr('y', (data) => yScale(data.value) )
+                .attr('height', (data) => {
+                    return drawableHeight - yScale(data.value) 
+                });
     }
 
     componentWillMount() {
@@ -86,6 +113,10 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
 
     componentDidMount() {
         this._draw();
+    }
+
+    componentDidUpdate() {
+        this._repaint();
     }
 
     render() {

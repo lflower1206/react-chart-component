@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { List } from 'immutable';
 
-import DrilldownLineChart from './';
+import LineChart from './';
 import { ILineSeries } from './model';
 
-export default class DrilldownLineChartContainer extends React.PureComponent<any, any> {
+export default class LineChartContainer extends React.PureComponent<any, any> {
 
     _generateData(): List<ILineSeries> {
 
@@ -52,7 +52,7 @@ export default class DrilldownLineChartContainer extends React.PureComponent<any
 
     render() {
         return (
-            <DrilldownLineChart svgWidth={500} svgHeight={400} data={this.state.data} />
+            <LineChart svgWidth={500} svgHeight={400} data={this.state.data} />
         );
     }
 }

@@ -1,14 +1,14 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 
-import DrilldownLineChartContainer from './components/DrilldownLineChart/container';
+import LineChartContainer from './components/LineChart/container';
 import BarChartContainer from './components/BarChart/container';
 
-import { ILineSeries } from './components/DrilldownLineChart/model';
+import { ILineSeries } from './components/LineChart/model';
 
 ReactDOM.render(
     <div>
-        <DrilldownLineChartContainer />
+        <LineChartContainer />
         <BarChartContainer />
     </div>,
     document.getElementById('root')

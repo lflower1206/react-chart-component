@@ -3,7 +3,7 @@ import { IProps, IState, ILineSeries } from './model';
 import * as React from 'react';
 import * as d3 from 'd3';
 
-export default class DrilldownLineChart extends React.PureComponent<IProps, IState> {
+export default class LineChart extends React.PureComponent<IProps, IState> {
 
     svg: SVGElement
 

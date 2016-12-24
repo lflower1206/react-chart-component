@@ -4,7 +4,7 @@ import { List } from 'immutable';
 import BarChart from './';
 import { IBarData } from './model';
 
-export default class DrilldownLineChartContainer extends React.PureComponent<any, any> {
+export default class BarContainer extends React.PureComponent<any, any> {
 
     _generateData(): List<IBarData> {
 

@@ -7,7 +7,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
 
     svg: SVGElement
 
-    constructor(props: any) {
+    constructor(props: IProps) {
         super(props);
     }
 

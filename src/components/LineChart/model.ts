@@ -22,15 +22,19 @@ export interface IProps {
 };
 
 export interface IState {
-    margin :        margin,
-    drawableHeight: number,
-    drawableWidth:  number,
-    xScale:         ScaleTime<number, number>,
-    yScale:         ScaleLinear<number, number>,
-    line:           Line<ILineSeries>,
-    area:           Line<ILineSeries>,
-    linePath?:      Selection<BaseType, ILineSeries[], null, undefined>,
-    areaPath?:      Selection<BaseType, ILineSeries[], null, undefined>,
-    axisBottom?:    Selection<BaseType, {}, null, undefined>,
-    axisLeft?:      Selection<BaseType, {}, null, undefined>
+    margin :             margin,
+    drawableHeight:      number,
+    drawableWidth:       number,
+    xScale:              ScaleTime<number, number>,
+    yScale:              ScaleLinear<number, number>,
+    line:                Line<ILineSeries>,
+    area:                Line<ILineSeries>,
+    tooltips:            Selection<BaseType, {}, HTMLElement, any>,
+    linePath?:           Selection<BaseType, ILineSeries[], null, undefined>,
+    areaPath?:           Selection<BaseType, ILineSeries[], null, undefined>,
+    axisBottom?:         Selection<BaseType, {}, null, undefined>,
+    axisLeft?:           Selection<BaseType, {}, null, undefined>,
+    isDrilldownMode?:    boolean,
+    isDrilldownFinish ?: boolean,
+    drilldownData?:      ILineSeries[]
 }

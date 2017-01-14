@@ -1,5 +1,7 @@
 import { IProps, IState, ILineSeries } from './model';
 
+import { List } from 'immutable';
+
 import * as React from 'react';
 import * as d3 from 'd3';
 
@@ -9,6 +11,14 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
 
     constructor(props: IProps) {
         super(props);
+    }
+
+    static formatTime(date: Date):string {
+        return d3.timeFormat('%H:%M:%S')(date);
+    }
+
+    getDots(list: ILineSeries[]) {
+        return d3.select('#canvas').selectAll('circle').data(list);
     }
 
     _calculate() {
@@ -28,13 +38,22 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         var area = d3.area<ILineSeries>()
                         .x( (data: ILineSeries) => xScale(data.time) )
                         .y0(drawableHeight)
-                        .y1( (data: ILineSeries) => yScale(data.value) )
-                        .curve(d3.curveBasis);
+                        .y1( (data: ILineSeries) => yScale(data.value) );
+                        // .curve(d3.curveBasis);
 
         let line = d3.line<ILineSeries>()
                         .x( (data: ILineSeries) => xScale(data.time) )
-                        .y( (data: ILineSeries) => yScale(data.value) )
-                        .curve(d3.curveBasis);
+                        .y( (data: ILineSeries) => yScale(data.value) );
+                        // .curve(d3.curveBasis);
+        
+        let tooltips = d3.select('body').append('div')
+                        .style('position', 'absolute')
+                        .style('text-align', 'center')
+                        .style('padding', '2px')
+                        .style('background', 'lightsteelblue')
+                        .style('border', '0px')
+                        .style('border-radius', '8px')
+                        .style('pointer-events', 'none');
 
         this.setState({
             margin: margin,
@@ -43,7 +62,9 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
             drawableHeight: drawableHeight,
             drawableWidth: drawableWidth,
             line: line,
-            area: area
+            area: area,
+            tooltips: tooltips,
+            isDrilldownMode: false
         });
     }
 
@@ -55,56 +76,87 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         let yScale = state.yScale;
         let line = state.line;
         let area = state.area;
+        let tooltips = state.tooltips;
 
         let svg = d3.select(this.svg)
                     .attr('width', this.props.svgWidth)
                     .attr('height', this.props.svgHeight);
-        
-        let g = svg.append('g')
+
+        let canvas = svg.append('g')
+                    .attr('id', 'canvas')
                     .attr('transform', 'translate(' + state.margin.left + ',' + state.margin.top + ')');
 
         xScale.domain([list[0].time, list[list.length -1].time]);
-
-        // yScale.domain(d3.extent(list, (data) => {
-        //     return data.value;
-        // }));
         yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
 
-        let axisBottom = g.append('g')
+        let axisBottom = canvas.append('g')
             .attr('class', 'axis axis--x')
             .attr('transform', 'translate(0,' + state.drawableHeight + ')')
             .call(d3.axisBottom(xScale));
 
-        let axisLeft = g.append('g')
+        let axisLeft = canvas.append('g')
             .attr('class', 'axis axis--y')
             .call(d3.axisLeft(yScale))
             .append('text')
-            .attr('fill', '#000')
-            .attr('transform', 'rotate(-90)')
-            .attr('y', 6)
-            .attr('dy', '0.71em')
-            .style('text-anchor', 'end');
+                .attr('fill', '#000')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', 6)
+                .attr('dy', '0.71em')
+                .style('text-anchor', 'end');
             
-        let areaPath = g.append('path')
+        let areaPath = canvas.append('path')
             .datum(list)
             .attr('class', 'area')
             .attr('d', area);
 
-        let linePath = g.append('path')
+        let linePath = canvas.append('path')
             .datum(list)
             .attr('class', 'line')
             .attr('d', line);
+
+        let dots = this.getDots(list);
+
+        dots.enter().append('circle')
+            .attr('r', 5)
+            .attr('cx', data => xScale(data.time))
+            .attr('cy', data => yScale(data.value))
+            .style('opacity', 0)
+            .on('mouseover', function(data) {
+                
+                d3.select(this).style('opacity', 1);
+
+                tooltips.transition()
+                    .duration(200)
+                    .style('opacity', .9);
+
+                tooltips.html(LineChart.formatTime(data.time) + '<br/>' + data.value)
+                    .style('left', (d3.event.pageX) + 'px')
+                    .style('top', (d3.event.pageY - 28) + 'px');
+            })
+            .on("mouseout", function (data) {
+                d3.select(this).style('opacity', 0);
+
+                tooltips.transition()
+                    .duration(200)
+                    .style('opacity', 0);
+            })
+            .on('click', (data) => {
+                this._drilldown(data);
+                tooltips.transition()
+                    .duration(200)
+                    .style('opacity', 0);
+            });
 
         state.axisBottom = axisBottom;
         state.axisLeft = axisLeft;
         state.areaPath = areaPath;
         state.linePath = linePath;
+
         this.setState(state);
     }
 
-    _repaint() {
+    _repaint(list: ILineSeries[]) {
         let state: IState = this.state;
-        let list: ILineSeries[] = this.props.data.toArray();
         let xScale = state.xScale;
         let yScale = state.yScale;
         let axisBottom = state.axisBottom;
@@ -113,12 +165,14 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         let line = state.line;
         let areaPath = state.areaPath;
         let linePath = state.linePath;
+        let tooltips = state.tooltips;
+        let dots = this.getDots(list);
 
         xScale.domain([list[0].time, list[list.length -1].time]);
         yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
 
         axisBottom.call(d3.axisBottom(xScale));
-        axisLeft.call(d3.axisLeft(yScale))
+        axisLeft.call(d3.axisLeft(yScale));
 
         areaPath
             .datum(list)
@@ -133,8 +187,82 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
             .duration(500)
             .ease(d3.easeLinear)
             .attr('d', line);
+
+        dots.transition()
+            .duration(500)
+            .attr('cy', data => yScale(data.value));
+        
     }
 
+    _drilldown(data: ILineSeries) {
+        let state: IState = this.state;
+        let index = this.props.data.indexOf(data);
+        let start = index - 1 <= 0 ? index : index - 1;
+        let end = index >= this.props.data.size - 2 ? index : index + 2;
+
+        state.drilldownData = this.props.data.slice(start, end).toArray();
+        state.isDrilldownMode = true;
+        this.setState(state);
+    }
+
+    _drawDrilldown(list: ILineSeries[]) {
+
+        let state: IState = this.state;
+        let xScale = this.state.xScale;
+        let yScale = this.state.yScale;
+        let axisBottom = state.axisBottom;
+        let axisLeft = state.axisLeft;
+        let area = state.area;
+        let line = state.line;
+        let areaPath = state.areaPath;
+        let linePath = state.linePath;
+        let dots = this.getDots(list);
+
+        xScale.domain([list[0].time, list[list.length -1].time]);
+        yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
+
+        axisBottom.call(d3.axisBottom(xScale));
+        axisLeft.call(d3.axisLeft(yScale));
+
+        areaPath
+            .datum(list)
+            .transition()
+            .duration(500)
+            .ease(d3.easeLinear)
+            .attr('d', area);
+
+        linePath
+            .datum(list)
+            .transition()
+            .duration(500)
+            .ease(d3.easeLinear)
+            .attr('d', line);
+
+        dots.transition()
+            .duration(500)
+            .attr('cx', data => xScale(data.time))
+            .attr('cy', data => yScale(data.value));
+        
+        dots.exit().remove();
+
+        state.drilldownData = undefined;
+        state.isDrilldownFinish = true;
+        this.setState(state);
+    }
+
+    shouldComponentUpdate(nextProps: IProps, nextState: IState) {
+
+        let shouldUpdate = true;
+
+        if (this.state.isDrilldownMode && this.state.isDrilldownFinish) {
+            return false;
+        }
+
+        console.log('shouldComponentUpdate', shouldUpdate);
+
+        return shouldUpdate;
+    }
+    
     componentWillMount() {
         this._calculate();
     }
@@ -144,7 +272,13 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
     }
 
     componentDidUpdate() {
-        this._repaint();
+
+        if (this.state.isDrilldownMode) {
+            this._drawDrilldown(this.state.drilldownData);
+        } else {
+            this._repaint(this.props.data.toArray());
+        }
+        
     }
 
     render() {

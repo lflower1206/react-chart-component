@@ -34,6 +34,7 @@ export interface IState {
     areaPath?:           Selection<BaseType, ILineSeries[], null, undefined>,
     axisBottom?:         Selection<BaseType, {}, null, undefined>,
     axisLeft?:           Selection<BaseType, {}, null, undefined>,
+    rectClip?:           Selection<BaseType, {}, null, undefined>,
     isDrilldownMode?:    boolean,
     isDrilldownFinish ?: boolean,
     drilldownData?:      ILineSeries[]

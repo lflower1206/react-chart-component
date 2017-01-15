@@ -77,6 +77,8 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         let line = state.line;
         let area = state.area;
         let tooltips = state.tooltips;
+        let drawableHeight = state.drawableHeight;
+        let drawableWidth = state.drawableWidth;
 
         let svg = d3.select(this.svg)
                     .attr('width', this.props.svgWidth)
@@ -85,6 +87,12 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         let canvas = svg.append('g')
                     .attr('id', 'canvas')
                     .attr('transform', 'translate(' + state.margin.left + ',' + state.margin.top + ')');
+
+        let rectClip = svg.append('clipPath')
+                    .attr('id', 'rect-clip')
+                    .append('rect')
+                    .attr('width', 0)
+                    .attr('height', drawableHeight);
 
         xScale.domain([list[0].time, list[list.length -1].time]);
         yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
@@ -107,12 +115,14 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         let areaPath = canvas.append('path')
             .datum(list)
             .attr('class', 'area')
-            .attr('d', area);
+            .attr('d', area)
+            .attr('clip-path', 'url(#rect-clip)');
 
         let linePath = canvas.append('path')
             .datum(list)
             .attr('class', 'line')
-            .attr('d', line);
+            .attr('d', line)
+            .attr('clip-path', 'url(#rect-clip)');
 
         let dots = this.getDots(list);
 
@@ -147,10 +157,15 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
                     .style('opacity', 0);
             });
 
+        rectClip.transition()
+                .duration(1000)
+                .attr('width', drawableWidth);
+
         state.axisBottom = axisBottom;
         state.axisLeft = axisLeft;
         state.areaPath = areaPath;
         state.linePath = linePath;
+        state.rectClip = rectClip;
 
         this.setState(state);
     }
@@ -208,34 +223,39 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
     _drawDrilldown(list: ILineSeries[]) {
 
         let state: IState = this.state;
-        let xScale = this.state.xScale;
-        let yScale = this.state.yScale;
+        let drawableWidth = state.drawableWidth;
+        let xScale = state.xScale;
+        let yScale = state.yScale;
         let axisBottom = state.axisBottom;
         let axisLeft = state.axisLeft;
         let area = state.area;
         let line = state.line;
         let areaPath = state.areaPath;
         let linePath = state.linePath;
+        let rectClip = state.rectClip;
         let dots = this.getDots(list);
 
         xScale.domain([list[0].time, list[list.length -1].time]);
         yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
 
+        rectClip.attr('width', 0);
+
         axisBottom.call(d3.axisBottom(xScale));
         axisLeft.call(d3.axisLeft(yScale));
+        
 
         areaPath
             .datum(list)
-            .transition()
-            .duration(500)
-            .ease(d3.easeLinear)
+            // .transition()
+            // .duration(500)
+            // .ease(d3.easeLinear)
             .attr('d', area);
 
         linePath
             .datum(list)
-            .transition()
-            .duration(500)
-            .ease(d3.easeLinear)
+            // .transition()
+            // .duration(500)
+            // .ease(d3.easeLinear)
             .attr('d', line);
 
         dots.transition()
@@ -244,6 +264,10 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
             .attr('cy', data => yScale(data.value));
         
         dots.exit().remove();
+
+        rectClip.transition()
+                .duration(1000)
+                .attr('width', drawableWidth);
 
         state.drilldownData = undefined;
         state.isDrilldownFinish = true;
@@ -257,8 +281,6 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         if (this.state.isDrilldownMode && this.state.isDrilldownFinish) {
             return false;
         }
-
-        console.log('shouldComponentUpdate', shouldUpdate);
 
         return shouldUpdate;
     }

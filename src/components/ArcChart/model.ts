@@ -9,9 +9,12 @@ export interface IProps {
 };
 
 export interface IState {
-    tau:      number,
-    arcDatum: DefaultArcObject
-    arc:      Arc<any, DefaultArcObject>,
-    arcPath?: Selection<BaseType, {}, null, undefined>,
-    radius: number
+    tau:       number,
+    arcDatum:  DefaultArcObject
+    arc:       Arc<any, DefaultArcObject>,
+    arcPath?:  Selection<BaseType, {}, null, undefined>,
+    label?:    Selection<BaseType, {}, null, undefined>,
+    radius:    number,
+    fontSize:  number,
+    data?:     number
 }

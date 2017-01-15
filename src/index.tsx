@@ -9,8 +9,12 @@ import { ILineSeries } from './components/LineChart/model';
 
 ReactDOM.render(
     <div>
-        <LineChartContainer />
-        <BarChartContainer />
+        <div>
+            <LineChartContainer />
+        </div>
+        <div>
+            <BarChartContainer />
+        </div>
         <div>
             <ArcChartContainer />
         </div>

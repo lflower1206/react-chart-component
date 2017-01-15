@@ -28,7 +28,7 @@ export default class ArcChartContainer extends React.PureComponent<any, any> {
     
     render() {
         return (
-            <ArcChart svgWidth={300} svgHeight={300} arcRadius={10} data={this.state.data} />
+            <ArcChart svgWidth={150} svgHeight={150} arcRadius={10} data={this.state.data} />
         );
     }
 }

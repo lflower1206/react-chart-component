@@ -46,14 +46,8 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
                         .y( (data: ILineSeries) => yScale(data.value) );
                         // .curve(d3.curveBasis);
         
-        let tooltips = d3.select('body').append('div')
-                        .style('position', 'absolute')
-                        .style('text-align', 'center')
-                        .style('padding', '2px')
-                        .style('background', 'lightsteelblue')
-                        .style('border', '0px')
-                        .style('border-radius', '8px')
-                        .style('pointer-events', 'none');
+        let tooltips = d3.select('body').append('div').attr('class', 'line-tooltip');
+        
 
         this.setState({
             margin: margin,
@@ -127,6 +121,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         let dots = this.getDots(list);
 
         dots.enter().append('circle')
+            .attr('class', 'dot')
             .attr('r', 5)
             .attr('cx', data => xScale(data.time))
             .attr('cy', data => yScale(data.value))

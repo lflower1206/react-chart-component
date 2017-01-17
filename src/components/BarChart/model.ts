@@ -11,7 +11,8 @@ interface margin {
 
 export interface IBarData {
     name:  string, 
-    value: number
+    value: number,
+    data?: List<IBarData>
 }
 
 export interface IProps {

@@ -76,7 +76,13 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
                 .attr('x',  (data) => xScale(data.name) )
                 .attr('width', xScale.bandwidth())
                 .attr('y', (data) => yScale(data.value) )
-                .attr('height', (data) => drawableHeight - yScale(data.value) );
+                .attr('height', (data) => drawableHeight - yScale(data.value) )
+                .on('mouseover', function() {
+                    d3.select(this).classed('hover', true);
+                })
+                .on('mouseout', function() {
+                    d3.select(this).classed('hover', false);
+                });
 
         state.axisBottom = axisBottom;
         state.axisLeft = axisLeft;

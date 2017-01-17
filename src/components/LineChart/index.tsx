@@ -122,7 +122,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
 
         dots.enter().append('circle')
             .attr('class', 'dot')
-            .attr('r', 5)
+            .attr('r', 10)
             .attr('cx', data => xScale(data.time))
             .attr('cy', data => yScale(data.value))
             .style('opacity', 0)

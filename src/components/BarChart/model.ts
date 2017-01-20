@@ -12,7 +12,7 @@ interface margin {
 export interface IBarData {
     name:  string, 
     value: number,
-    data?: List<IBarData>
+    subData?: List<IBarData>
 }
 
 export interface IProps {
@@ -22,12 +22,16 @@ export interface IProps {
 };
 
 export interface IState {
-    margin:         margin,
-    drawableHeight: number,
-    drawableWidth:  number,
-    xScale:         ScaleBand<string>,
-    yScale:         ScaleLinear<number, number>,
-    axisBottom?:    Selection<BaseType, {}, null, undefined>,
-    axisLeft?:      Selection<BaseType, {}, null, undefined>,
-    bars?:          Selection<BaseType, {}, null, undefined>
+    margin:              margin,
+    drawableHeight:      number,
+    drawableWidth:       number,
+    xScale:              ScaleBand<string>,
+    yScale:              ScaleLinear<number, number>,
+    canvas?:             Selection<BaseType, {}, null, undefined>,
+    axisBottom?:         Selection<BaseType, {}, null, undefined>,
+    axisLeft?:           Selection<BaseType, {}, null, undefined>,
+    bars?:               Selection<BaseType, {}, null, undefined>,
+    isDrilldownMode?:    boolean,
+    isDrilldownFinish ?: boolean,
+    drilldownData?:      IBarData
 }

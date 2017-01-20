@@ -2,6 +2,7 @@ import { IProps, IState, IBarData } from './model';
 
 import * as React from 'react';
 import * as d3 from 'd3';
+import { BaseType } from 'd3-selection';
 
 export default class BarChart extends React.PureComponent<IProps, IState> {
 
@@ -37,6 +38,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
 
     _draw() {
 
+        let self = this;
         let state: IState = this.state;
         let list: IBarData[] = this.props.data.toArray();
         let xScale = state.xScale;
@@ -47,28 +49,29 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
                     .attr('width', this.props.svgWidth)
                     .attr('height', this.props.svgHeight);
         
-        let g = svg.append('g')
+        let canvas = svg.append('g')
+                    .attr('id', 'canvas')
                     .attr('transform', 'translate(' + state.margin.left + ',' + state.margin.top + ')');
 
         xScale.domain(list.map( (barData) => barData.name) );
         yScale.domain([0, d3.max<IBarData>(list, (data) => data.value )]);
 
-        let axisBottom = g.append('g')
+        let axisBottom = canvas.append('g')
             .attr('class', 'axis axis--x')
             .attr('transform', 'translate(0,' + state.drawableHeight + ')')
             .call(d3.axisBottom(xScale));
 
-        let axisLeft = g.append('g')
+        let axisLeft = canvas.append('g')
             .attr('class', 'axis axis--y')
             .call(d3.axisLeft(yScale))
-            .append('text')
-            .attr('fill', '#000')
-            .attr('transform', 'rotate(-90)')
-            .attr('y', 6)
-            .attr('dy', '0.71em')
-            .style('text-anchor', 'end');
+                .append('text')
+                .attr('fill', '#000')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', 6)
+                .attr('dy', '0.71em')
+                .style('text-anchor', 'end');
 
-        let bars = g.selectAll('.bar')
+        let bars = canvas.selectAll('.bar')
             .data(list)
             .enter()
                 .append('rect')
@@ -82,11 +85,17 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
                 })
                 .on('mouseout', function() {
                     d3.select(this).classed('hover', false);
+                })
+                .on('click', function() {
+                    let bar = d3.select<BaseType, IBarData>(this);
+
+                    self._drilldown(bar.data()[0]);
                 });
 
         state.axisBottom = axisBottom;
         state.axisLeft = axisLeft;
         state.bars = bars;
+        state.canvas = canvas;
         this.setState(state);
         
     }
@@ -113,6 +122,90 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
                 });
     }
 
+    _drilldown(data: IBarData) {
+        let state: IState = this.state;
+
+        state.drilldownData = data;
+        state.isDrilldownMode = true;
+        this.setState(state);
+    }
+
+    _drawDrilldown(drilldownData: IBarData) {
+        
+        let state: IState = this.state;
+        let canvas = state.canvas;
+        let xScale = state.xScale;
+        let yScale = state.yScale;
+        let axisBottom = state.axisBottom;
+        let axisLeft = state.axisLeft;
+        let drawableHeight = state.drawableHeight;
+        let bars = state.bars;
+        let list = drilldownData.subData.toArray();
+        let startX = xScale(drilldownData.name);
+        let startY = yScale(drilldownData.value);
+        let startHeight = drawableHeight - yScale(drilldownData.value);
+
+        xScale.domain(list.map( (barData) => barData.name) );
+        yScale.domain([0, d3.max<IBarData>(list, (data) => data.value )]);
+
+        canvas.selectAll('g.axis--x')
+            .attr('class', 'axis axis--x')
+            .attr('transform', 'translate(0,' + state.drawableHeight + ')')
+            .call(d3.axisBottom(xScale));
+
+        canvas.selectAll('g.axis--y')
+            .call(d3.axisLeft(yScale))
+                .append('text')
+                .attr('fill', '#000')
+                .attr('transform', 'rotate(-90)')
+                .attr('y', 6)
+                .attr('dy', '0.71em')
+                .style('text-anchor', 'end');
+
+        bars.transition()
+            .duration(500)
+            .style('opacity', 0)
+            .remove();
+
+        canvas.selectAll('.bar-2')
+            .data(list)
+            .enter()
+                .append('rect')
+                    .attr('class', 'bar-2')
+                    .attr('x',  (data) => startX )
+                    .attr('width', xScale.bandwidth())
+                    .attr('y', (data) => startY )
+                    .attr('height', (data) => startHeight )
+                    .style('opacity', .1)
+                    .on('mouseover', function() {
+                        d3.select(this).classed('hover', true);
+                    })
+                    .on('mouseout', function() {
+                        d3.select(this).classed('hover', false);
+                    })
+                .transition()
+                .duration(500)
+                    .attr('x',  (data) => xScale(data.name) )
+                    .attr('y', (data) => yScale(data.value) )
+                    .attr('height', (data) => drawableHeight - yScale(data.value) )
+                    .style('opacity', 1);
+
+        state.drilldownData = undefined;
+        state.isDrilldownFinish = true;
+        this.setState(state);
+    }
+
+    shouldComponentUpdate(nextProps: IProps, nextState: IState) {
+
+        let shouldUpdate = true;
+
+        if (this.state.isDrilldownMode && this.state.isDrilldownFinish) {
+            return false;
+        }
+
+        return shouldUpdate;
+    }
+
     componentWillMount() {
         this._calculate();
     }
@@ -122,7 +215,11 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
     }
 
     componentDidUpdate() {
-        this._repaint();
+        if (this.state.isDrilldownMode) {
+            this._drawDrilldown(this.state.drilldownData);
+        } else {
+            this._repaint();
+        }
     }
 
     render() {

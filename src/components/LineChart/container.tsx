@@ -15,7 +15,7 @@ export default class LineChartContainer extends React.PureComponent<any, any> {
         for (let i = 0 ; i < 12 ; i++) {
             list = list.push({
                 time: new Date(now + (i * 5000)), 
-                value: Math.floor(Math.random() * 10)
+                value: Math.floor(Math.random() * 100) + 10
             });
         }
 
@@ -29,7 +29,7 @@ export default class LineChartContainer extends React.PureComponent<any, any> {
 
         newList = newList.push( {
             time: new Date(lastTime + 5000),
-            value: Math.floor(Math.random() * 10)
+            value: Math.floor(Math.random() * 100) + 10
         });
 
         return newList;

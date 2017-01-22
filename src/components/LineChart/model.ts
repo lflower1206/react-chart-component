@@ -1,6 +1,7 @@
 import { ScaleTime, ScaleLinear } from 'd3-scale';
-import { BaseType, Selection } from 'd3-selection';
+import { Selection } from 'd3-selection';
 import { Line } from 'd3-shape';
+import { Bisector } from 'd3-array';
 import { List } from 'immutable';
 
 interface margin {
@@ -25,16 +26,19 @@ export interface IState {
     margin :             margin,
     drawableHeight:      number,
     drawableWidth:       number,
+    bisectDate:          Bisector<ILineSeries, Date>,
     xScale:              ScaleTime<number, number>,
     yScale:              ScaleLinear<number, number>,
     line:                Line<ILineSeries>,
     area:                Line<ILineSeries>,
-    tooltips:            Selection<BaseType, {}, HTMLElement, any>,
-    linePath?:           Selection<BaseType, ILineSeries[], null, undefined>,
-    areaPath?:           Selection<BaseType, ILineSeries[], null, undefined>,
-    axisBottom?:         Selection<BaseType, {}, null, undefined>,
-    axisLeft?:           Selection<BaseType, {}, null, undefined>,
-    rectClip?:           Selection<BaseType, {}, null, undefined>,
+    svg?:                Selection<SVGElement, {}, HTMLElement, any>,
+    canvas?:             Selection<SVGGElement, {}, HTMLElement, any>,
+    rectClip?:           Selection<SVGRectElement, {}, null, undefined>,
+    linePath?:           Selection<SVGPathElement, ILineSeries[], null, undefined>,
+    areaPath?:           Selection<SVGPathElement, ILineSeries[], null, undefined>,
+    axisBottom?:         Selection<SVGGElement, {}, null, undefined>,
+    axisLeft?:           Selection<SVGGElement, {}, null, undefined>,
+    cover?:              Selection<SVGRectElement, {}, null, undefined>,
     isDrilldownMode?:    boolean,
     isDrilldownFinish ?: boolean,
     drilldownData?:      ILineSeries[]

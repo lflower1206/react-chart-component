@@ -63,6 +63,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
                             yScale: ScaleLinear<number, number>,
                             bisectDate: Bisector<ILineSeries, Date>) {
         
+        let self = this;
         let canvas = d3.select(this.svg).select<SVGGElement>('#canvas');
         let dot = canvas.select<SVGCircleElement>('#dot');
         let cover = canvas.select<SVGRectElement>('#cover');
@@ -87,6 +88,15 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
 
             dot.attr('cx', () => xScale(d.time))
                 .attr('cy', () => yScale(d.value));
+        })
+        .on('click', function() {
+            let x0 = xScale.invert(d3.mouse(this)[0]);
+            let i = bisectDate.left(data, x0, 1);
+            let d0 = data[i - 1];
+            let d1 = data[i];
+            let d = x0.getTime() - d0.time.getTime() > d1.time.getTime() - x0.getTime() ? d1: d0;
+
+            self._drilldown(d);
         });
     }
 

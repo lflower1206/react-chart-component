@@ -11,7 +11,15 @@ const config = {
         publicPath: 'dist/'
     },
     module: {
-        rules: [{
+        rules: [
+        {
+            test: /\.tsx?$/,
+            exclude: /node_modules/,
+            include: /src/,
+            enforce: 'pre',
+            use: 'tslint-loader',
+        },
+        {
             test: /\.tsx?$/,
             exclude: /node_modules/,
             include: /src/,

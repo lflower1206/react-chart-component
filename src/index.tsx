@@ -1,14 +1,14 @@
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
 
-import LineChartContainer from './components/LineChart/container';
-import BarChartContainer from './components/BarChart/container';
-import ArcChartContainer from './components/ArcChart/container';
+import LineChartContainer from "./components/LineChart/container";
+import BarChartContainer from "./components/BarChart/container";
+import ArcChartContainer from "./components/ArcChart/container";
 
-import { ILineSeries } from './components/LineChart/model';
+import { ILineSeries } from "./components/LineChart/model";
 
-import Chart from './components/ComposeChart/Chart';
-import LineChart from './components/ComposeChart/LineChart';
+import Chart from "./components/ComposeChart/Chart";
+import LineChart from "./components/ComposeChart/LineChart";
 
 
 ReactDOM.render(
@@ -28,5 +28,5 @@ ReactDOM.render(
             </Chart>
         </div>
     </div>,
-    document.getElementById('root')
+    document.getElementById("root")
 );

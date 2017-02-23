@@ -1,17 +1,18 @@
-import * as React from 'react';
+import * as React from "react";
 
-import { IProps, IState, Margin } from './model';
-import { IProps as LineChartIProps } from '../LineChart/model';
+import { IProps, IState, SVGMargin } from "./model";
+import { IProps as LineChartIProps } from "../LineChart/model";
 
 export default class ComposeChart extends React.PureComponent<IProps, IState> {
-    
-    svg: SVGElement
-    defaultMargin: Margin = {
+
+    svg: SVGElement;
+
+    defaultMargin: SVGMargin = {
         top: 20,
         right: 0,
         bottom: 20,
         left: 25
-    }
+    };
 
     constructor(props: IProps) {
         super(props);
@@ -21,7 +22,7 @@ export default class ComposeChart extends React.PureComponent<IProps, IState> {
         const svgMargin    = this.props.margin || this.defaultMargin;
         const canvasHeight = this.props.height - svgMargin.top - svgMargin.bottom;
         const canvasWidth  = this.props.width - svgMargin.left - svgMargin.right;
-        const canvasID     = 'compose-'.concat(Date.now().toString());
+        const canvasID     = "compose-".concat(Date.now().toString());
 
         this.setState({
             svgMargin:    svgMargin,
@@ -36,11 +37,11 @@ export default class ComposeChart extends React.PureComponent<IProps, IState> {
     }
 
     render() {
-        
-        const { 
+
+        const {
             canvasID,
             canvasHeight,
-            canvasWidth 
+            canvasWidth
         } = this.state;
 
         const childrenWithCustomProps: React.ReactChild[] = React.Children.map(this.props.children, child => {

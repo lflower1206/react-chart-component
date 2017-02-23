@@ -1,7 +1,7 @@
-import * as React from 'react';
-import { List } from 'immutable';
+import * as React from "react";
+import { List } from "immutable";
 
-import ArcChart from './';
+import ArcChart from "./";
 
 
 export default class ArcChartContainer extends React.PureComponent<any, any> {
@@ -25,7 +25,7 @@ export default class ArcChartContainer extends React.PureComponent<any, any> {
             });
         }, 3000);
     }
-    
+
     render() {
         return (
             <ArcChart svgWidth={150} svgHeight={150} arcRadius={10} data={this.state.data} />

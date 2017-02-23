@@ -1,13 +1,13 @@
-import { IProps, IState } from './model';
+import { IProps, IState } from "./model";
 
-import * as React from 'react';
-import * as d3 from 'd3';
-import { DefaultArcObject } from 'd3-shape';
-import { BaseType, Selection } from 'd3-selection';
+import * as React from "react";
+import * as d3 from "d3";
+import { DefaultArcObject } from "d3-shape";
+import { BaseType, Selection } from "d3-selection";
 
 export default class ArcChart extends React.PureComponent<IProps, IState> {
 
-    svg: SVGElement
+    svg: SVGElement;
 
     constructor(props: IProps) {
         super(props);
@@ -25,8 +25,8 @@ export default class ArcChart extends React.PureComponent<IProps, IState> {
             return (t: number) => {
                 datum.endAngle = interpolate(t);
                 return arc(datum);
-            }
-        }
+            };
+        };
     }
 
      _labelTween(data: number, label: Selection<BaseType, {}, null, undefined>) {
@@ -34,9 +34,9 @@ export default class ArcChart extends React.PureComponent<IProps, IState> {
              let interpolate = d3.interpolate(datum, data);
 
             return (t: number) => {
-                label.text(Math.round(interpolate(t) * 100) + '%');
-            }
-         }
+                label.text(Math.round(interpolate(t) * 100) + "%");
+            };
+         };
     }
 
     _initial() {
@@ -54,9 +54,9 @@ export default class ArcChart extends React.PureComponent<IProps, IState> {
             padAngle: 0
         };
         let arc = d3.arc()
-                    .innerRadius(arcDatum['innerRadius'])
-                    .outerRadius(arcDatum['outerRadius'])
-                    .startAngle(arcDatum['startAngle']);
+                    .innerRadius(arcDatum["innerRadius"])
+                    .outerRadius(arcDatum["outerRadius"])
+                    .startAngle(arcDatum["startAngle"]);
 
         this.setState({
             arcDatum: arcDatum,
@@ -79,33 +79,33 @@ export default class ArcChart extends React.PureComponent<IProps, IState> {
         let arcDatum = state.arcDatum;
         let arc = state.arc;
         let svg = d3.select(this.svg)
-                    .attr('width', svgWidth)
-                    .attr('height', svgHeight);
+                    .attr("width", svgWidth)
+                    .attr("height", svgHeight);
 
-        let canvas = svg.append('g')
-                      .attr('transform', 'translate(' + transform + ',' + transform + ')');
+        let canvas = svg.append("g")
+                      .attr("transform", "translate(" + transform + "," + transform + ")");
 
-        let arcPath = canvas.append('path')
+        let arcPath = canvas.append("path")
                         .datum<DefaultArcObject>(arcDatum)
-                        .attr('class', 'arc')
-                        .attr('d', arc);
+                        .attr("class", "arc")
+                        .attr("d", arc);
 
-        let label = svg.append('text')
+        let label = svg.append("text");
 
         arcPath.transition()
             .duration(750)
-            .attrTween('d', this._arcTween(data));
+            .attrTween("d", this._arcTween(data));
 
         label.datum(0)
-                .attr('class', 'label')
-                .attr('y', svgWidth / 2 + fontSize / 3)
-                .attr('x', svgWidth / 4)
-                .attr('width', svgWidth)
-                .text('0%')
-                .style('font-size', fontSize + 'px')
+                .attr("class", "label")
+                .attr("y", svgWidth / 2 + fontSize / 3)
+                .attr("x", svgWidth / 4)
+                .attr("width", svgWidth)
+                .text("0%")
+                .style("font-size", fontSize + "px")
                 .transition()
                     .duration(1000)
-                    .tween('text', this._labelTween(data, label));
+                    .tween("text", this._labelTween(data, label));
 
         state.arcPath = arcPath;
         state.label = label;
@@ -123,12 +123,12 @@ export default class ArcChart extends React.PureComponent<IProps, IState> {
 
         arcPath.transition()
             .duration(750)
-            .attrTween('d', this._arcTween(data));
+            .attrTween("d", this._arcTween(data));
 
         label.datum(oldData)
             .transition()
                 .duration(1000)
-                .tween('text', this._labelTween(data, label));
+                .tween("text", this._labelTween(data, label));
 
         state.data = data;
         this.setState(state);

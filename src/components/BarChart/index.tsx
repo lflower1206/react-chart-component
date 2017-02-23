@@ -1,12 +1,12 @@
-import { IProps, IState, IBarData } from './model';
+import { IProps, IState, IBarData } from "./model";
 
-import * as React from 'react';
-import * as d3 from 'd3';
-import { BaseType } from 'd3-selection';
+import * as React from "react";
+import * as d3 from "d3";
+import { BaseType } from "d3-selection";
 
 export default class BarChart extends React.PureComponent<IProps, IState> {
 
-    svg: SVGElement
+    svg: SVGElement;
 
     constructor(props: IProps) {
         super(props);
@@ -23,7 +23,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         let xScale = d3.scaleBand()
                         .range([0, drawableWidth])
                         .paddingInner(.2);
-    
+
         let yScale = d3.scaleLinear()
                         .range([drawableHeight, 0]);
 
@@ -46,47 +46,47 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         let drawableHeight = state.drawableHeight;
 
         let svg = d3.select(this.svg)
-                    .attr('width', this.props.svgWidth)
-                    .attr('height', this.props.svgHeight);
-        
-        let canvas = svg.append('g')
-                    .attr('id', 'canvas')
-                    .attr('transform', 'translate(' + state.margin.left + ',' + state.margin.top + ')');
+                    .attr("width", this.props.svgWidth)
+                    .attr("height", this.props.svgHeight);
+
+        let canvas = svg.append("g")
+                    .attr("id", "canvas")
+                    .attr("transform", "translate(" + state.margin.left + "," + state.margin.top + ")");
 
         xScale.domain(list.map( (barData) => barData.name) );
         yScale.domain([0, d3.max<IBarData>(list, (data) => data.value )]);
 
-        let axisBottom = canvas.append('g')
-            .attr('class', 'axis axis--x')
-            .attr('transform', 'translate(0,' + state.drawableHeight + ')')
+        let axisBottom = canvas.append("g")
+            .attr("class", "axis axis--x")
+            .attr("transform", "translate(0," + state.drawableHeight + ")")
             .call(d3.axisBottom(xScale));
 
-        let axisLeft = canvas.append('g')
-            .attr('class', 'axis axis--y')
+        let axisLeft = canvas.append("g")
+            .attr("class", "axis axis--y")
             .call(d3.axisLeft(yScale))
-                .append('text')
-                .attr('fill', '#000')
-                .attr('transform', 'rotate(-90)')
-                .attr('y', 6)
-                .attr('dy', '0.71em')
-                .style('text-anchor', 'end');
+                .append("text")
+                .attr("fill", "#000")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", "0.71em")
+                .style("text-anchor", "end");
 
-        let bars = canvas.selectAll('.bar')
+        let bars = canvas.selectAll(".bar")
             .data(list)
             .enter()
-                .append('rect')
-                .attr('class', 'bar')
-                .attr('x',  (data) => xScale(data.name) )
-                .attr('width', xScale.bandwidth())
-                .attr('y', (data) => yScale(data.value) )
-                .attr('height', (data) => drawableHeight - yScale(data.value) )
-                .on('mouseover', function() {
-                    d3.select(this).classed('hover', true);
+                .append("rect")
+                .attr("class", "bar")
+                .attr("x",  (data) => xScale(data.name) )
+                .attr("width", xScale.bandwidth())
+                .attr("y", (data) => yScale(data.value) )
+                .attr("height", (data) => drawableHeight - yScale(data.value) )
+                .on("mouseover", function() {
+                    d3.select(this).classed("hover", true);
                 })
-                .on('mouseout', function() {
-                    d3.select(this).classed('hover', false);
+                .on("mouseout", function() {
+                    d3.select(this).classed("hover", false);
                 })
-                .on('click', function() {
+                .on("click", function() {
                     let bar = d3.select<BaseType, IBarData>(this);
 
                     self._drilldown(bar.data()[0]);
@@ -97,7 +97,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         state.bars = bars;
         state.canvas = canvas;
         this.setState(state);
-        
+
     }
 
     _repaint() {
@@ -116,9 +116,9 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         bars.data(list)
             .transition()
             .duration(500)
-                .attr('y', (data) => yScale(data.value) )
-                .attr('height', (data) => {
-                    return drawableHeight - yScale(data.value) 
+                .attr("y", (data) => yScale(data.value) )
+                .attr("height", (data) => {
+                    return drawableHeight - yScale(data.value);
                 });
     }
 
@@ -131,7 +131,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
     }
 
     _drawDrilldown(drilldownData: IBarData) {
-        
+
         let state: IState = this.state;
         let canvas = state.canvas;
         let xScale = state.xScale;
@@ -148,47 +148,47 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         xScale.domain(list.map( (barData) => barData.name) );
         yScale.domain([0, d3.max<IBarData>(list, (data) => data.value )]);
 
-        canvas.selectAll('g.axis--x')
-            .attr('class', 'axis axis--x')
-            .attr('transform', 'translate(0,' + state.drawableHeight + ')')
+        canvas.selectAll("g.axis--x")
+            .attr("class", "axis axis--x")
+            .attr("transform", "translate(0," + state.drawableHeight + ")")
             .call(d3.axisBottom(xScale));
 
-        canvas.selectAll('g.axis--y')
+        canvas.selectAll("g.axis--y")
             .call(d3.axisLeft(yScale))
-                .append('text')
-                .attr('fill', '#000')
-                .attr('transform', 'rotate(-90)')
-                .attr('y', 6)
-                .attr('dy', '0.71em')
-                .style('text-anchor', 'end');
+                .append("text")
+                .attr("fill", "#000")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 6)
+                .attr("dy", "0.71em")
+                .style("text-anchor", "end");
 
         bars.transition()
             .duration(500)
-            .style('opacity', 0)
+            .style("opacity", 0)
             .remove();
 
-        canvas.selectAll('.bar-2')
+        canvas.selectAll(".bar-2")
             .data(list)
             .enter()
-                .append('rect')
-                    .attr('class', 'bar-2')
-                    .attr('x',  (data) => startX )
-                    .attr('width', xScale.bandwidth())
-                    .attr('y', (data) => startY )
-                    .attr('height', (data) => startHeight )
-                    .style('opacity', .1)
-                    .on('mouseover', function() {
-                        d3.select(this).classed('hover', true);
+                .append("rect")
+                    .attr("class", "bar-2")
+                    .attr("x",  (data) => startX )
+                    .attr("width", xScale.bandwidth())
+                    .attr("y", (data) => startY )
+                    .attr("height", (data) => startHeight )
+                    .style("opacity", .1)
+                    .on("mouseover", function() {
+                        d3.select(this).classed("hover", true);
                     })
-                    .on('mouseout', function() {
-                        d3.select(this).classed('hover', false);
+                    .on("mouseout", function() {
+                        d3.select(this).classed("hover", false);
                     })
                 .transition()
                 .duration(500)
-                    .attr('x',  (data) => xScale(data.name) )
-                    .attr('y', (data) => yScale(data.value) )
-                    .attr('height', (data) => drawableHeight - yScale(data.value) )
-                    .style('opacity', 1);
+                    .attr("x",  (data) => xScale(data.name) )
+                    .attr("y", (data) => yScale(data.value) )
+                    .attr("height", (data) => drawableHeight - yScale(data.value) )
+                    .style("opacity", 1);
 
         state.drilldownData = undefined;
         state.isDrilldownFinish = true;

@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { List } from 'immutable';
+import * as React from "react";
+import { List } from "immutable";
 
-import BarChart from './';
-import { IBarData } from './model';
+import BarChart from "./";
+import { IBarData } from "./model";
 
 export default class BarContainer extends React.PureComponent<any, any> {
 
@@ -25,16 +25,16 @@ export default class BarContainer extends React.PureComponent<any, any> {
         let list = BarContainer.getDataList();
 
         list.forEach(data => {
-            data['subData'] = BarContainer.getDataList();
+            data["subData"] = BarContainer.getDataList();
         });
 
         return list;
     }
 
     _updateData(list: List<IBarData>): List<IBarData> {
-        
+
         let newList = list.map<IBarData>((data) => {
-            data['value'] = Math.floor(Math.random() * 100);
+            data["value"] = Math.floor(Math.random() * 100);
             return data;
         }).toList();
 
@@ -55,7 +55,7 @@ export default class BarContainer extends React.PureComponent<any, any> {
             });
         }, 3000);
     }
-    
+
     render() {
         return (
             <BarChart svgWidth={500} svgHeight={400} data={this.state.data} />

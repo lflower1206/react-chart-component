@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { List } from 'immutable';
+import * as React from "react";
+import { List } from "immutable";
 
-import LineChart from './';
-import { ILineSeries } from './model';
+import LineChart from "./";
+import { ILineSeries } from "./model";
 
 export default class LineChartContainer extends React.PureComponent<any, any> {
 
@@ -14,7 +14,7 @@ export default class LineChartContainer extends React.PureComponent<any, any> {
 
         for (let i = 0 ; i < 12 ; i++) {
             list = list.push({
-                time: new Date(now + (i * 5000)), 
+                time: new Date(now + (i * 5000)),
                 value: Math.floor(Math.random() * 100) + 10
             });
         }

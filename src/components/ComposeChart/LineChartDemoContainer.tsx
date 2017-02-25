@@ -6,7 +6,8 @@ import LineChart from "./LineChart/";
 import { ILineSeries } from "./LineChart/model";
 
 interface LineChartDemoContainerState {
-    lineChartData: List<ILineSeries>;
+    lineChartData1: List<ILineSeries>;
+    lineChartData2: List<ILineSeries>;
 }
 
 export default class LineChartDemoContainer extends React.PureComponent<any, LineChartDemoContainerState> {
@@ -14,7 +15,6 @@ export default class LineChartDemoContainer extends React.PureComponent<any, Lin
     _generateData(): List<ILineSeries> {
 
         let list = List<ILineSeries>();
-
         let now = Date.now();
 
         for (let i = 0 ; i < 50 ; i++) {
@@ -42,15 +42,16 @@ export default class LineChartDemoContainer extends React.PureComponent<any, Lin
 
     componentWillMount() {
         this.setState({
-            lineChartData: this._generateData()
+            lineChartData1: this._generateData(),
+            lineChartData2: this._generateData()
         });
     }
 
     componentDidMount() {
         setInterval(() => {
-            let data = this._updateData(this.state.lineChartData);
             this.setState({
-                lineChartData: data
+                lineChartData1: this._updateData(this.state.lineChartData1),
+                lineChartData2: this._updateData(this.state.lineChartData2)
             });
         }, 5000);
     }
@@ -61,7 +62,8 @@ export default class LineChartDemoContainer extends React.PureComponent<any, Lin
 
         return (
             <ChartContainer svgHeight={500} svgWidth={400}>
-                <LineChart data={state.lineChartData}/>
+                <LineChart data={state.lineChartData1} stroke="#CB4042" />
+                <LineChart data={state.lineChartData2} stroke="#1B813E"/>
             </ChartContainer>
         );
     }

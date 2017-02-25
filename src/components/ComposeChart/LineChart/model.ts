@@ -5,7 +5,12 @@ import { List } from "immutable";
 import { IBaseProps, IBaseState } from "../Base/model";
 
 export interface IProps extends IBaseProps {
-    readonly data: List<ILineSeries>;
+    readonly data:         List<ILineSeries>;
+
+    // styles
+    readonly fill?:        string;
+    readonly stroke?:      string;
+    readonly strokeWidth?: string;
 }
 
 export interface IState extends IBaseState {

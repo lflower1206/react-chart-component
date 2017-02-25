@@ -11,6 +11,14 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         super(props);
     }
 
+    static get defaultProps() {
+        return {
+            fill: "none",
+            stroke: "#22BAD9",
+            strokeWidth: "1.5px"
+        };
+    }
+
     _init() {
         const { canvasHeight, canvasWidth } = this.props;
 
@@ -43,7 +51,9 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         d3.select<SVGPathElement, ILineSeries>(this.path)
             .datum(list)
             .attr("id", "linePath-".concat(this.props.uuid))
-            .attr("class", "line")
+            .style("fill", this.props.fill)
+            .style("stroke", this.props.stroke)
+            .style("stroke-width", this.props.strokeWidth)
             .attr("d", line);
 
     }

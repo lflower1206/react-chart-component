@@ -8,13 +8,25 @@ import * as React from "react";
 import * as d3 from "d3";
 
 import { IProps, IState, ILineSeries } from "./model";
+import componentUtil from "../../util/component-util";
 
 export default class LineChart extends React.PureComponent<IProps, IState> {
 
-    svg: SVGElement;
+    uuid:           string;
+    svg:            SVGElement;
+    canvas:         Selection<SVGGElement, {}, HTMLElement, any>;
+    axisBottom:     Selection<SVGGElement, {}, HTMLElement, any>;
+    axisLeft:       Selection<SVGGElement, {}, HTMLElement, any>;
+    areaPath:       Selection<SVGGElement, ILineSeries[], HTMLElement, any>;
+    linePath:       Selection<SVGGElement, ILineSeries[], HTMLElement, any>;
+    clipPath:       Selection<SVGClipPathElement, {}, null, undefined>;
+    rectClip:       Selection<SVGRectElement, {}, null, undefined>;
+    dot:            Selection<SVGCircleElement, {}, null, undefined>;
+    cover:          Selection<SVGRectElement, {}, null, undefined>;
 
     constructor(props: IProps) {
         super(props);
+        this.uuid = componentUtil.getComponentUUID();
     }
 
     static formatTime(date: Date): string {
@@ -23,25 +35,25 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
 
     _calculate() {
 
-        let margin = {
+        const margin = {
             top: 20, right: 0, bottom: 20, left: 25
         };
-        let drawableHeight = this.props.svgHeight - margin.top - margin.bottom;
-        let drawableWidth = this.props.svgWidth - margin.left - margin.right;
-        let bisectDate = d3.bisector<ILineSeries, Date>( data => data.time );
+        const drawableHeight = this.props.svgHeight - margin.top - margin.bottom;
+        const drawableWidth = this.props.svgWidth - margin.left - margin.right;
+        const bisectDate = d3.bisector<ILineSeries, Date>( data => data.time );
 
-        let xScale = d3.scaleTime()
+        const xScale = d3.scaleTime()
                         .rangeRound([0, drawableWidth]);
 
-        let yScale = d3.scaleLinear()
+        const yScale = d3.scaleLinear()
                         .range([drawableHeight, 0]);
 
-        let area = d3.area<ILineSeries>()
+        const area = d3.area<ILineSeries>()
                         .x( (data: ILineSeries) => xScale(data.time) )
                         .y0(drawableHeight)
                         .y1( (data: ILineSeries) => yScale(data.value) );
 
-        let line = d3.line<ILineSeries>()
+        const line = d3.line<ILineSeries>()
                         .x( (data: ILineSeries) => xScale(data.time) )
                         .y( (data: ILineSeries) => yScale(data.value) );
 
@@ -54,7 +66,8 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
             bisectDate: bisectDate,
             line: line,
             area: area,
-            isDrilldownMode: false
+            isDrilldownMode: false,
+            drilldownRange: this.props.drilldownRange || 3
         });
     }
 
@@ -63,21 +76,19 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
                             yScale: ScaleLinear<number, number>,
                             bisectDate: Bisector<ILineSeries, Date>) {
 
-        let self = this;
-        let canvas = d3.select(this.svg).select<SVGGElement>("#canvas");
-        let dot = canvas.select<SVGCircleElement>("#dot");
-        let cover = canvas.select<SVGRectElement>("#cover");
+        const self = this;
+        const canvas = this.canvas;
 
         // Remove handler before adding, to avoid superfluous handlers on elements.
-        cover.on("mouseover", null)
+        this.cover.on("mouseover", null)
                 .on("mouseout", null)
                 .on("mousemove", null);
 
-        cover.on("mouseover", () => {
-            dot.style("display", null);
+        this.cover.on("mouseover", () => {
+            this.dot.style("display", null);
         })
         .on("mouseout", () => {
-            dot.style("display", "none");
+            this.dot.style("display", "none");
         })
         .on("mousemove", function() {
             let x0 = xScale.invert(d3.mouse(this)[0]);
@@ -86,124 +97,115 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
             let d1 = data[i];
             let d = x0.getTime() - d0.time.getTime() > d1.time.getTime() - x0.getTime() ? d1 : d0;
 
-            dot.attr("cx", () => xScale(d.time))
-                .attr("cy", () => yScale(d.value));
+            self.dot.attr("cx", () => xScale(d.time))
+                    .attr("cy", () => yScale(d.value));
         })
         .on("click", function() {
             let x0 = xScale.invert(d3.mouse(this)[0]);
-            let i = bisectDate.left(data, x0, 1);
-            let d0 = data[i - 1];
-            let d1 = data[i];
+            let index = bisectDate.left(data, x0, 1);
+            let d0 = data[index - 1];
+            let d1 = data[index];
             let d = x0.getTime() - d0.time.getTime() > d1.time.getTime() - x0.getTime() ? d1 : d0;
 
-            self._drilldown(d);
+            self._drilldown(index);
         });
     }
 
-    _draw() {
+    _draw(list: ILineSeries[]) {
 
-        let state: IState = this.state;
-        let list: ILineSeries[] = this.props.data.toArray();
-        let xScale = state.xScale;
-        let yScale = state.yScale;
-        let line = state.line;
-        let area = state.area;
-        let drawableHeight = state.drawableHeight;
-        let drawableWidth = state.drawableWidth;
+        const clipPathId = "clipPath-".concat(this.uuid);
+        const clipPathURL = "url(#".concat(clipPathId).concat(")");
+        const state = this.state;
+        const xScale = state.xScale;
+        const yScale = state.yScale;
+        const line = state.line;
+        const area = state.area;
+        const drawableHeight = state.drawableHeight;
+        const drawableWidth = state.drawableWidth;
+        const selectionSVG = d3.select(this.svg)
+                                .attr("width", this.props.svgWidth)
+                                .attr("height", this.props.svgHeight);
 
-        let svg = d3.select(this.svg)
-                    .attr("width", this.props.svgWidth)
-                    .attr("height", this.props.svgHeight);
+        this.canvas = selectionSVG.append<SVGGElement>("g")
+                                    .attr("id", "canvas-".concat(this.uuid))
+                                    .attr("transform", "translate(" + state.margin.left + "," + state.margin.top + ")");
 
-        let canvas = svg.append<SVGGElement>("g")
-                        .attr("id", "canvas")
-                        .attr("transform", "translate(" + state.margin.left + "," + state.margin.top + ")");
+        this.clipPath = selectionSVG.append<SVGClipPathElement>("clipPath")
+                                    .attr("id", clipPathId);
 
-        let clipPath = svg.append<SVGClipPathElement>("clipPath")
-                            .attr("id", "rect-clip");
-
-        let rectClip = clipPath.append<SVGRectElement>("rect")
-                                .attr("width", 0)
-                                .attr("height", drawableHeight);
+        this.rectClip = this.clipPath.append<SVGRectElement>("rect")
+                                    .attr("id", "rectClip-".concat(this.uuid))
+                                    .attr("width", 0)
+                                    .attr("height", drawableHeight);
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
         yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
 
-        let axisBottom = canvas.append<SVGGElement>("g")
-                                .attr("class", "axis axis--x")
-                                .attr("transform", "translate(0," + state.drawableHeight + ")")
-                                .call(d3.axisBottom(xScale));
+        this.axisBottom = this.canvas.append<SVGGElement>("g")
+                                    .attr("id", "axisX-".concat(this.uuid))
+                                    .attr("class", "axis axis--x")
+                                    .attr("transform", "translate(0," + state.drawableHeight + ")")
+                                    .call(d3.axisBottom(xScale));
 
-        let axisLeft = canvas.append<SVGGElement>("g")
-                                .attr("class", "axis axis--y")
-                                .call(d3.axisLeft(yScale));
+        this.axisLeft = this.canvas.append<SVGGElement>("g")
+                                    .attr("id", "axisY-".concat(this.uuid))
+                                    .attr("class", "axis axis--y")
+                                    .call(d3.axisLeft(yScale));
 
-        axisLeft.append<SVGTextElement>("text")
+        this.axisLeft.append<SVGTextElement>("text")
                 .attr("fill", "#000")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 6)
                 .attr("dy", "0.71em")
                 .style("text-anchor", "end");
 
-        let areaPath = canvas.append<SVGPathElement>("path")
+        this.areaPath = this.canvas.append<SVGPathElement>("path")
                                 .datum(list)
+                                .attr("id", "areaPath-".concat(this.uuid))
                                 .attr("class", "area")
                                 .attr("d", area)
-                                .attr("clip-path", "url(#rect-clip)");
+                                .attr("clip-path", clipPathURL);
 
-        let linePath = canvas.append<SVGPathElement>("path")
+        this.linePath = this.canvas.append<SVGPathElement>("path")
                                 .datum(list)
+                                .attr("id", "linePath-".concat(this.uuid))
                                 .attr("class", "line")
                                 .attr("d", line)
-                                .attr("clip-path", "url(#rect-clip)");
+                                .attr("clip-path", clipPathURL);
 
-        canvas.append<SVGCircleElement>("circle")
-                        .style("display", "none")
-                        .attr("id", "dot")
-                        .attr("class", "dot")
-                        .attr("r", 10);
+        this.dot = this.canvas.append<SVGCircleElement>("circle")
+                                .style("display", "none")
+                                .attr("id", "dot")
+                                .attr("class", "dot")
+                                .attr("r", 5);
 
-        canvas.append<SVGRectElement>("rect")
-                .attr("id", "cover")
-                .style("pointer-events", "all")
-                .attr("width", drawableWidth)
-                .attr("height", drawableHeight)
-                .style("fill", "none");
+        this.cover = this.canvas.append<SVGRectElement>("rect")
+                                .attr("id", "cover")
+                                .style("pointer-events", "all")
+                                .attr("width", drawableWidth)
+                                .attr("height", drawableHeight)
+                                .style("fill", "none");
+
+        this.rectClip.transition()
+                    .duration(1000)
+                    .attr("width", drawableWidth);
 
         this._handleCoverMouseEvent(list, xScale, yScale, state.bisectDate);
-
-        rectClip.transition()
-                .duration(1000)
-                .attr("width", drawableWidth);
-
-        state.svg = svg;
-        state.canvas = canvas;
-        state.axisBottom = axisBottom;
-        state.axisLeft = axisLeft;
-        state.areaPath = areaPath;
-        state.linePath = linePath;
-        state.rectClip = rectClip;
-
-        this.setState(state);
     }
 
     _repaint(list: ILineSeries[]) {
-        let state: IState = this.state;
-        let canvas = state.canvas;
-        let xScale = state.xScale;
-        let yScale = state.yScale;
-        let axisBottom = state.axisBottom;
-        let axisLeft = state.axisLeft;
-        let area = state.area;
-        let line = state.line;
-        let areaPath = state.areaPath;
-        let linePath = state.linePath;
+
+        const state: IState = this.state;
+        const xScale = state.xScale;
+        const yScale = state.yScale;
+        const area = state.area;
+        const line = state.line;
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
         yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
 
-        axisBottom.call(d3.axisBottom(xScale));
-        axisLeft.call(d3.axisLeft(yScale))
+        this.axisBottom.call(d3.axisBottom(xScale));
+        this.axisLeft.call(d3.axisLeft(yScale))
                 .append("text")
                     .attr("fill", "#000")
                     .attr("transform", "rotate(-90)")
@@ -211,31 +213,56 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
                     .attr("dy", "0.71em")
                     .style("text-anchor", "end");
 
-        areaPath
+        this.areaPath
             .datum(list)
             .transition()
             .duration(500)
             .ease(d3.easeLinear)
             .attr("d", area);
 
-        linePath
+        this.linePath
             .datum(list)
+                .attr("transform", null)
             .transition()
-            .duration(500)
-            .ease(d3.easeLinear)
-            .attr("d", line);
+                .duration(500)
+                .ease(d3.easeLinear)
+                .attr("d", line);
 
         this._handleCoverMouseEvent(list, xScale, yScale, state.bisectDate);
-
     }
 
-    _drilldown(data: ILineSeries) {
-        let state: IState = this.state;
-        let index = this.props.data.indexOf(data);
-        let start = index - 1 <= 0 ? index : index - 1;
-        let end = index >= this.props.data.size - 2 ? index : index + 2;
+    _drilldown(dataIndex: number) {
+        let state = this.state;
+        let startIndex = 0;
+        let endIndex = 0;
+        let range = 0;
+        const dataSize = this.props.data.size - 1;
 
-        state.drilldownData = this.props.data.slice(start, end).toArray();
+        if (state.drilldownRange >= dataSize) {
+            return;
+        }
+
+        range = Math.floor(state.drilldownRange / 2);
+
+        if (state.drilldownRange % 2 > 0) {
+            startIndex = dataIndex - range;
+            endIndex = dataIndex + range + 1;
+        } else {
+            startIndex = dataIndex - range;
+            endIndex = dataIndex + range;
+        }
+
+        while (startIndex < 0) {
+            startIndex -= 1;
+            endIndex += 1;
+        }
+
+        while (endIndex > dataSize) {
+            startIndex += 1;
+            endIndex -= 1;
+        }
+
+        state.drilldownData = this.props.data.slice(startIndex, endIndex).toList();
         state.isDrilldownMode = true;
         this.setState(state);
     }
@@ -243,40 +270,31 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
     _drawDrilldown(list: ILineSeries[]) {
 
         let state: IState = this.state;
-        let canvas = state.canvas;
         let drawableWidth = state.drawableWidth;
         let xScale = state.xScale;
         let yScale = state.yScale;
-        let axisBottom = state.axisBottom;
-        let axisLeft = state.axisLeft;
         let area = state.area;
         let line = state.line;
-        let areaPath = state.areaPath;
-        let linePath = state.linePath;
-        let rectClip = state.rectClip;
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
         yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
 
-        rectClip.attr("width", 0);
+        this.rectClip.attr("width", 0);
 
-        axisBottom.call(d3.axisBottom(xScale));
-        axisLeft.call(d3.axisLeft(yScale));
+        this.axisBottom.call(d3.axisBottom(xScale));
+        this.axisLeft.call(d3.axisLeft(yScale));
 
-        areaPath
-            .datum(list)
-            .attr("d", area);
+        this.areaPath.datum(list)
+                    .attr("d", area);
 
-        linePath
-            .datum(list)
-            .attr("d", line);
+        this.linePath.datum(list)
+                    .attr("d", line);
 
-        rectClip.transition()
-                .duration(1000)
-                .attr("width", drawableWidth);
+        this.rectClip.transition()
+                    .duration(1000)
+                    .attr("width", drawableWidth);
 
         state.drilldownData = undefined;
-        state.isDrilldownFinish = true;
         this.setState(state);
     }
 
@@ -284,8 +302,8 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
 
         let shouldUpdate = true;
 
-        if (this.state.isDrilldownMode && this.state.isDrilldownFinish) {
-            return false;
+        if (this.state.isDrilldownMode && ! this.state.drilldownData) {
+            shouldUpdate = false;
         }
 
         return shouldUpdate;
@@ -296,13 +314,15 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
     }
 
     componentDidMount() {
-        this._draw();
+        this._draw(this.props.data.toArray());
     }
 
     componentDidUpdate() {
 
+        // this._repaint(this.props.data.toArray());
+
         if (this.state.isDrilldownMode) {
-            this._drawDrilldown(this.state.drilldownData);
+            this._drawDrilldown(this.state.drilldownData.toArray());
         } else {
             this._repaint(this.props.data.toArray());
         }

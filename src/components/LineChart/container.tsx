@@ -12,10 +12,10 @@ export default class LineChartContainer extends React.PureComponent<any, any> {
 
         let now = Date.now();
 
-        for (let i = 0 ; i < 12 ; i++) {
+        for (let i = 0 ; i < 50 ; i++) {
             list = list.push({
                 time: new Date(now + (i * 5000)),
-                value: Math.floor(Math.random() * 100) + 10
+                value: Math.floor(Math.random() * 10) + 10
             });
         }
 
@@ -29,7 +29,7 @@ export default class LineChartContainer extends React.PureComponent<any, any> {
 
         newList = newList.push( {
             time: new Date(lastTime + 5000),
-            value: Math.floor(Math.random() * 100) + 10
+            value: Math.floor(Math.random() * 10) + 10
         });
 
         return newList;
@@ -47,12 +47,12 @@ export default class LineChartContainer extends React.PureComponent<any, any> {
             this.setState({
                 data: data
             });
-        }, 3000);
+        }, 5000);
     }
 
     render() {
         return (
-            <LineChart svgWidth={500} svgHeight={400} data={this.state.data} />
+            <LineChart svgWidth={500} svgHeight={400} drilldownRange={5} data={this.state.data} />
         );
     }
 }

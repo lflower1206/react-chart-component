@@ -17,9 +17,10 @@ export interface ILineSeries {
 }
 
 export interface IProps {
-    svgWidth:  number;
-    svgHeight: number;
-    data:      List<ILineSeries>;
+    svgWidth:        number;
+    svgHeight:       number;
+    drilldownRange?: number;
+    data:            List<ILineSeries>;
 };
 
 export interface IState {
@@ -31,15 +32,7 @@ export interface IState {
     yScale:              ScaleLinear<number, number>;
     line:                Line<ILineSeries>;
     area:                Line<ILineSeries>;
-    svg?:                Selection<SVGElement, {}, HTMLElement, any>;
-    canvas?:             Selection<SVGGElement, {}, HTMLElement, any>;
-    rectClip?:           Selection<SVGRectElement, {}, null, undefined>;
-    linePath?:           Selection<SVGPathElement, ILineSeries[], null, undefined>;
-    areaPath?:           Selection<SVGPathElement, ILineSeries[], null, undefined>;
-    axisBottom?:         Selection<SVGGElement, {}, null, undefined>;
-    axisLeft?:           Selection<SVGGElement, {}, null, undefined>;
-    cover?:              Selection<SVGRectElement, {}, null, undefined>;
     isDrilldownMode?:    boolean;
-    isDrilldownFinish?:  boolean;
-    drilldownData?:      ILineSeries[];
+    drilldownData?:      List<ILineSeries>;
+    drilldownRange:      number;
 }

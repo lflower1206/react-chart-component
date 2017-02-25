@@ -5,6 +5,8 @@ import { IProps, IState, ILineSeries } from "./model";
 
 export default class LineChart extends React.PureComponent<IProps, IState> {
 
+    path: SVGPathElement;
+
     constructor(props: IProps) {
         super(props);
     }
@@ -30,16 +32,35 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         });
     }
 
+    _paint(list: ILineSeries[]) {
+        const state = this.state;
+        const xScale = state.xScale;
+        const yScale = state.yScale;
+        const line = state.line;
+
+        xScale.domain([list[0].time, list[list.length - 1].time]);
+        yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
+
+        d3.select<SVGPathElement, ILineSeries>(this.path)
+                                .datum(list)
+                                .attr("id", "linePath-".concat(this.props.uuid))
+                                .attr("class", "line")
+                                .attr("d", line);
+
+    }
+
     componentWillMount() {
         this._init();
     }
 
+    componentDidMount() {
+        this._paint(this.props.data.toArray());
+    }
+
     render() {
 
-        console.log(this.props);
-
         return (
-            <text>Line Chart</text>
+            <path ref={ (path) => { this.path = path as SVGPathElement; } }></path>
         );
     }
 }

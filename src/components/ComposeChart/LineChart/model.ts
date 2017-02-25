@@ -1,15 +1,17 @@
 import { ScaleTime, ScaleLinear } from "d3-scale";
 import { Line } from "d3-shape";
+import { List } from "immutable";
 
-export interface IProps {
-    readonly canvasHeight?:  number;
-    readonly canvasWidth?:   number;
+import { IBaseProps, IBaseState } from "../Base/model";
+
+export interface IProps extends IBaseProps {
+    readonly data: List<ILineSeries>;
 }
 
-export interface IState {
-    xScale:              ScaleTime<number, number>;
-    yScale:              ScaleLinear<number, number>;
-    line:                Line<ILineSeries>;
+export interface IState extends IBaseState {
+    xScale: ScaleTime<number, number>;
+    yScale: ScaleLinear<number, number>;
+    line:   Line<ILineSeries>;
 }
 
 export interface ILineSeries {

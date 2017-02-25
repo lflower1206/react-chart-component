@@ -7,9 +7,7 @@ import ArcChartContainer from "./components/ArcChart/container";
 
 import { ILineSeries } from "./components/LineChart/model";
 
-import Chart from "./components/ComposeChart/Chart";
-import LineChart from "./components/ComposeChart/LineChart";
-
+import LineChartDemoContainer from "./components/ComposeChart/LineChartDemoContainer";
 
 ReactDOM.render(
     <div>
@@ -23,9 +21,7 @@ ReactDOM.render(
             <ArcChartContainer />
         </div>
         <div>
-            <Chart height={500} width={400}>
-                <LineChart />
-            </Chart>
+            <LineChartDemoContainer />
         </div>
     </div>,
     document.getElementById("root")

@@ -14,7 +14,6 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
     _init() {
         const { canvasHeight, canvasWidth } = this.props;
 
-
         const xScale = d3.scaleTime()
                         .rangeRound([0, canvasWidth]);
 
@@ -42,10 +41,29 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
 
         d3.select<SVGPathElement, ILineSeries>(this.path)
-                                .datum(list)
-                                .attr("id", "linePath-".concat(this.props.uuid))
-                                .attr("class", "line")
-                                .attr("d", line);
+            .datum(list)
+            .attr("id", "linePath-".concat(this.props.uuid))
+            .attr("class", "line")
+            .attr("d", line);
+
+    }
+
+    _repaint(list: ILineSeries[]) {
+        const state = this.state;
+        const xScale = state.xScale;
+        const yScale = state.yScale;
+        const line = state.line;
+
+        xScale.domain([list[0].time, list[list.length - 1].time]);
+        yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
+
+        d3.select<SVGPathElement, ILineSeries>(this.path)
+            .datum(list)
+                .attr("transform", null)
+            .transition()
+                .duration(500)
+                .ease(d3.easeLinear)
+                .attr("d", line);
 
     }
 
@@ -53,12 +71,19 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         this._init();
     }
 
+    shouldComponentUpdate(nextProps: IProps, nextState: IState) {
+        return this.props.data !== nextProps.data;
+    }
+
     componentDidMount() {
         this._paint(this.props.data.toArray());
     }
 
-    render() {
+    componentDidUpdate() {
+        this._repaint(this.props.data.toArray());
+    }
 
+    render() {
         return (
             <path ref={ (path) => { this.path = path as SVGPathElement; } }></path>
         );

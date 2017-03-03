@@ -139,7 +139,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
                                     .attr("height", drawableHeight);
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
-        yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
+        yScale.domain([0, d3.max<ILineSeries, number>(list, data => data.value * 1.5 )]);
 
         this.axisBottom = this.canvas.append<SVGGElement>("g")
                                     .attr("id", "axisX-".concat(this.uuid))
@@ -202,7 +202,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         const line = state.line;
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
-        yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
+        yScale.domain([0, d3.max<ILineSeries, number>(list, data => data.value * 1.5 )]);
 
         this.axisBottom.call(d3.axisBottom(xScale));
         this.axisLeft.call(d3.axisLeft(yScale))
@@ -232,7 +232,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
     }
 
     _drilldown(dataIndex: number) {
-        let state = this.state;
+        let state = Object.assign<object, IState>({}, this.state);
         let startIndex = 0;
         let endIndex = 0;
         let range = 0;
@@ -277,7 +277,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         let line = state.line;
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
-        yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
+        yScale.domain([0, d3.max<ILineSeries, number>(list, data => data.value * 1.5 )]);
 
         this.rectClip.attr("width", 0);
 

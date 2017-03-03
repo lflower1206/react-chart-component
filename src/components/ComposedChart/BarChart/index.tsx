@@ -40,7 +40,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         const yScale = state.yScale;
 
         xScale.domain(list.map( (barData) => barData.name) );
-        yScale.domain([0, d3.max<IBarData>(list, (data) => data.value )]);
+        yScale.domain([0, d3.max<IBarData, number>(list, data => data.value )]);
 
         d3.select(this.group)
             .selectAll(".bar")
@@ -67,7 +67,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         const state = this.state;
         const yScale = state.yScale;
 
-        yScale.domain([0, d3.max<IBarData>(list, (data) => data.value * 1.5 )]);
+        yScale.domain([0, d3.max<IBarData, number>(list, data => data.value * 1.5 )]);
 
         d3.select(this.group)
             .selectAll(".bar")

@@ -54,7 +54,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
                     .attr("transform", "translate(" + state.margin.left + "," + state.margin.top + ")");
 
         xScale.domain(list.map( (barData) => barData.name) );
-        yScale.domain([0, d3.max<IBarData>(list, (data) => data.value )]);
+        yScale.domain([0, d3.max<IBarData, number>(list, data => data.value )]);
 
         let axisBottom = canvas.append("g")
             .attr("class", "axis axis--x")
@@ -109,7 +109,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         let axisLeft = state.axisLeft;
         let bars = state.bars;
 
-        yScale.domain([0, d3.max<IBarData>(list, (data) => data.value * 1.5 )]);
+        yScale.domain([0, d3.max<IBarData, number>(list, data => data.value * 1.5 )]);
 
         axisLeft.call(d3.axisLeft(yScale));
 
@@ -146,7 +146,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         let startHeight = drawableHeight - yScale(drilldownData.value);
 
         xScale.domain(list.map( (barData) => barData.name) );
-        yScale.domain([0, d3.max<IBarData>(list, (data) => data.value )]);
+        yScale.domain([0, d3.max<IBarData, number>(list, data => data.value )]);
 
         canvas.selectAll("g.axis--x")
             .attr("class", "axis axis--x")

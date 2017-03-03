@@ -46,7 +46,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         const line = state.line;
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
-        yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
+        yScale.domain([0, d3.max<ILineSeries, number>(list, data => data.value * 1.5 )]);
 
         d3.select<SVGPathElement, ILineSeries>(this.path)
             .datum(list)
@@ -65,7 +65,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         const line = state.line;
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
-        yScale.domain([0, d3.max<ILineSeries>(list, (data) => data.value * 1.5 )]);
+        yScale.domain([0, d3.max<ILineSeries, number>(list, data => data.value * 1.5 )]);
 
         d3.select<SVGPathElement, ILineSeries>(this.path)
             .datum(list)

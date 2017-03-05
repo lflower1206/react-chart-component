@@ -35,9 +35,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
 
     _paint(list: IBarData[]) {
         const { canvasHeight } = this.props;
-        const state = this.state;
-        const xScale = state.xScale;
-        const yScale = state.yScale;
+        const { xScale, yScale } = this.state;
 
         xScale.domain(list.map( (barData) => barData.name) );
         yScale.domain([0, d3.max<IBarData, number>(list, data => data.value )]);
@@ -64,8 +62,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
     _repaint(list: IBarData[]) {
 
         const { canvasHeight } = this.props;
-        const state = this.state;
-        const yScale = state.yScale;
+        const { yScale } = this.state;
 
         yScale.domain([0, d3.max<IBarData, number>(list, data => data.value * 1.5 )]);
 

@@ -40,10 +40,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
     }
 
     _paint(list: ILineSeries[]) {
-        const state = this.state;
-        const xScale = state.xScale;
-        const yScale = state.yScale;
-        const line = state.line;
+        const { xScale, yScale, line } = this.state;
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
         yScale.domain([0, d3.max<ILineSeries, number>(list, data => data.value * 1.5 )]);
@@ -59,10 +56,7 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
     }
 
     _repaint(list: ILineSeries[]) {
-        const state = this.state;
-        const xScale = state.xScale;
-        const yScale = state.yScale;
-        const line = state.line;
+        const { xScale, yScale, line } = this.state;
 
         xScale.domain([list[0].time, list[list.length - 1].time]);
         yScale.domain([0, d3.max<ILineSeries, number>(list, data => data.value * 1.5 )]);

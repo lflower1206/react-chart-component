@@ -1,8 +1,13 @@
 import * as React from "react";
 import { List } from "immutable";
 
+import AxisLeft from "./Axis/axisLeft";
+import AxisBottom from "./Axis/axisBottom";
+import { ScaleType } from "./Axis/model";
+
 import ChartContainer from "./ChartContainer/";
 import LineChart from "./LineChart/";
+
 import { ILineSeries } from "./LineChart/model";
 
 interface LineChartDemoContainerState {
@@ -61,7 +66,9 @@ export default class LineChartDemoContainer extends React.PureComponent<any, Lin
         const state = this.state;
 
         return (
-            <ChartContainer svgHeight={500} svgWidth={400}>
+            <ChartContainer svgHeight={300} svgWidth={400}>
+                <AxisLeft data={state.lineChartData1} />
+                <AxisBottom data={state.lineChartData1} scaleType={ ScaleType.Time } />
                 <LineChart data={state.lineChartData1} stroke="#CB4042" />
                 <LineChart data={state.lineChartData2} stroke="#1B813E"/>
             </ChartContainer>

@@ -10,6 +10,7 @@ import componentUtil from "../../../util/component-util";
 export default class ChartContainer extends React.PureComponent<IProps, IState> {
 
     svg:      SVGElement;
+    canvas:   SVGGElement;
     uuid:     string;
     canvasID: string;
 
@@ -38,8 +39,19 @@ export default class ChartContainer extends React.PureComponent<IProps, IState> 
         });
     }
 
+    _draw() {
+
+        const svgMargin = this.state.svgMargin;
+
+        d3.select(this.canvas).attr("transform", "translate(" + svgMargin.left + "," + svgMargin.top + ")");
+    }
+
     componentWillMount() {
         this._init();
+    }
+
+    componentDidMount() {
+        this._draw();
     }
 
     render() {
@@ -68,7 +80,7 @@ export default class ChartContainer extends React.PureComponent<IProps, IState> 
 
         return (
             <svg height={svgHeight} width={svgWidth} ref={ svg => { this.svg = svg; } }>
-                <g id={ this.canvasID }>
+                <g id={ this.canvasID } ref={ canvas => { this.canvas = canvas as SVGGElement; }} >
                     { childrenWithCustomProps }
                 </g>
             </svg>

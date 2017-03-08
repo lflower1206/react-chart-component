@@ -24,9 +24,9 @@ ReactDOM.render(
         <div>
             <LineChartDemoContainer />
         </div>
-        <div>
+        {/*<div>
             <BarChartDemoContainer />
-        </div>
+        </div>*/}
     </div>,
     document.getElementById("root")
 );

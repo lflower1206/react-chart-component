@@ -1,5 +1,6 @@
 import * as React from "react";
 import * as d3 from "d3";
+import { List } from "immutable";
 
 import { IProps, IState, IBarData } from "./model";
 
@@ -11,9 +12,10 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
         super(props);
     }
 
-    static get defaultProps() {
+    static get defaultProps(): IProps {
         return {
-            fill: "#22BAD9"
+            fill: "#22BAD9",
+            data: List<IBarData>()
         };
     }
 

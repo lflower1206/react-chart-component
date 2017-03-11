@@ -13,11 +13,12 @@ export default class LineChart extends React.PureComponent<IProps, IState> {
         super(props);
     }
 
-    static get defaultProps() {
+    static get defaultProps(): IProps {
         return {
             fill: "none",
             stroke: "#22BAD9",
-            strokeWidth: "1.5px"
+            strokeWidth: "1.5px",
+            data: List<ILineSeries>()
         };
     }
 

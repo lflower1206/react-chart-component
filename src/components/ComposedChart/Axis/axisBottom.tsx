@@ -74,8 +74,7 @@ export default class AxisBottom extends React.PureComponent<IProps, IState> {
                 break;
         }
 
-        axisBottom.attr("class", "axis axis--x")
-                    .attr("transform", "translate(0," + canvasHeight + ")")
+        axisBottom.attr("transform", "translate(0," + canvasHeight + ")")
                     .transition()
                         .duration(500)
                         .call(axis);

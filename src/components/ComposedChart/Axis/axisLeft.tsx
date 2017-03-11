@@ -12,6 +12,7 @@ import { IBarData } from "../BarChart/model";
 interface IProps {
     readonly canvasHeight?: number;
     readonly data:          PropsDataType;
+    readonly ticks?:        number;
 };
 
 interface IState {
@@ -24,6 +25,13 @@ export default class AxisLeft extends React.PureComponent<IProps, IState> {
 
     constructor(props: IProps) {
         super(props);
+    }
+
+    static get defaultProps(): IProps {
+        return {
+            data: List<ILineSeries>(),
+            ticks: 4
+        };
     }
 
     _init() {
@@ -43,15 +51,9 @@ export default class AxisLeft extends React.PureComponent<IProps, IState> {
 
         yScale.domain([0, d3.max<any, number>(list, data => data.value * 1.5 )]);
 
-        axisLeft.attr("class", "axis axis--y")
-                .call(d3.axisLeft(yScale));
-
-        axisLeft.append<SVGTextElement>("text")
-                .attr("fill", "#000")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 6)
-                .attr("dy", "0.71em")
-                .style("text-anchor", "end");
+        axisLeft.transition()
+                    .duration(500)
+                    .call(d3.axisLeft(yScale).ticks(this.props.ticks));
     }
 
     componentWillMount() {

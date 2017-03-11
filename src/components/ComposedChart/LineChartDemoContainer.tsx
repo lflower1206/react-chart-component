@@ -36,10 +36,11 @@ export default class LineChartDemoContainer extends React.PureComponent<any, Lin
         let newList = list.shift();
         let lastData = newList.get(newList.size - 1);
         let lastTime = lastData.time.getTime();
+        let count = Math.random();
 
         newList = newList.push( {
             time: new Date(lastTime + 5000),
-            value: Math.floor(Math.random() * 10) + 10
+            value: Math.floor(Math.random() * 100 * count) + 10
         });
 
         return newList;
@@ -58,7 +59,7 @@ export default class LineChartDemoContainer extends React.PureComponent<any, Lin
                 lineChartData1: this._updateData(this.state.lineChartData1),
                 lineChartData2: this._updateData(this.state.lineChartData2)
             });
-        }, 5000);
+        }, 1000);
     }
 
     render() {
@@ -66,7 +67,7 @@ export default class LineChartDemoContainer extends React.PureComponent<any, Lin
         const state = this.state;
 
         return (
-            <ChartContainer svgHeight={300} svgWidth={400}>
+            <ChartContainer svgHeight={300} svgWidth={800}>
                 <AxisLeft data={state.lineChartData1} />
                 <AxisBottom data={state.lineChartData1} scaleType={ ScaleType.Time } />
                 <LineChart data={state.lineChartData1} stroke="#CB4042" />

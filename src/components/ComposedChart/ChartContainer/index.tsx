@@ -9,10 +9,13 @@ import componentUtil from "../../../util/component-util";
 
 export default class ChartContainer extends React.PureComponent<IProps, IState> {
 
-    svg:      SVGElement;
-    canvas:   SVGGElement;
-    uuid:     string;
-    canvasID: string;
+    svg:        SVGElement;
+    canvas:     SVGGElement;
+    clipPath:   SVGClipPathElement;
+    rectClip:   SVGRectElement;
+    uuid:       string;
+    canvasID:   string;
+    clipPathID: string;
 
     defaultMargin: SVGMargin = {
         top: 20,
@@ -24,7 +27,8 @@ export default class ChartContainer extends React.PureComponent<IProps, IState> 
     constructor(props: IProps) {
         super(props);
         this.uuid = componentUtil.getComponentUUID();
-        this.canvasID = "canvas-".concat(this.uuid);
+        this.canvasID = `canvas-${this.uuid}`;
+        this.clipPathID = `clipPath-${this.uuid}`;
     }
 
     _init() {
@@ -67,11 +71,13 @@ export default class ChartContainer extends React.PureComponent<IProps, IState> 
         } = this.props;
 
         const uuid = this.uuid;
+        const clipPathID = this.clipPathID;
 
         const childrenWithCustomProps = React.Children.map<React.ReactElement<IBaseProps>>(this.props.children, child => {
 
             return React.cloneElement<IBaseProps, IBaseProps>(child as React.ReactElement<IBaseProps>, {
                 uuid,
+                clipPathID,
                 canvasHeight,
                 canvasWidth
             });
@@ -81,6 +87,11 @@ export default class ChartContainer extends React.PureComponent<IProps, IState> 
         return (
             <svg height={svgHeight} width={svgWidth} ref={ svg => { this.svg = svg; } }>
                 <g id={ this.canvasID } ref={ canvas => { this.canvas = canvas as SVGGElement; }} >
+                    <defs>
+                        <clipPath id={ this.clipPathID } ref={ clipPath => { this.clipPath = clipPath as SVGClipPathElement; } }>
+                            <rect width={canvasWidth} height={canvasHeight} ref={ rectClip => { this.rectClip = rectClip as SVGRectElement; } }></rect>
+                        </clipPath>
+                    </defs>
                     { childrenWithCustomProps }
                 </g>
             </svg>

@@ -9,10 +9,17 @@ import { ILineSeries } from "./components/LineChart/model";
 
 import LineChartDemoContainer from "./components/ComposedChart/LineChartDemoContainer";
 import BarChartDemoContainer from "./components/ComposedChart/BarChartDemoContainer";
+import AreaChartDemoContainer from "./components/ComposedChart/AreaChartDemoContainer";
 
 ReactDOM.render(
     <div>
-        {/*<div>
+        <div>
+            <LineChartDemoContainer />
+        </div>
+        <div>
+            <AreaChartDemoContainer />
+        </div>
+        <div>
             <LineChartContainer />
         </div>
         <div>
@@ -20,13 +27,9 @@ ReactDOM.render(
         </div>
         <div>
             <ArcChartContainer />
-        </div>*/}
-        <div>
-            <LineChartDemoContainer />
-        </div>
-        {/*<div>
+        </div><div>
             <BarChartDemoContainer />
-        </div>*/}
+        </div>
     </div>,
     document.getElementById("root")
 );

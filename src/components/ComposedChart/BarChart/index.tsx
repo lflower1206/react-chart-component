@@ -24,7 +24,7 @@ export default class BarChart extends React.PureComponent<IProps, IState> {
 
         let xScale = d3.scaleBand()
                         .range([0, canvasWidth])
-                        .paddingInner(.2);
+                        .padding(.2);
 
         let yScale = d3.scaleLinear()
                         .range([canvasHeight, 0]);

@@ -20,16 +20,17 @@ ReactDOM.render(
             <AreaChartDemoContainer />
         </div>
         <div>
+            <BarChartDemoContainer />
+        </div>
+        <div>
+            <ArcChartContainer />
+        </div>
+        {/*<div>
             <LineChartContainer />
         </div>
         <div>
             <BarChartContainer />
-        </div>
-        <div>
-            <ArcChartContainer />
-        </div><div>
-            <BarChartDemoContainer />
-        </div>
+        </div>*/}
     </div>,
     document.getElementById("root")
 );

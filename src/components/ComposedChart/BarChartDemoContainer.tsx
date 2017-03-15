@@ -1,6 +1,10 @@
 import * as React from "react";
 import { List } from "immutable";
 
+import AxisLeft from "./Axis/axisLeft";
+import AxisBottom from "./Axis/axisBottom";
+import { ScaleType } from "./Axis/model";
+
 import ChartContainer from "./ChartContainer/";
 import BarChart from "./BarChart/";
 import { IBarData } from "./BarChart/model";
@@ -53,7 +57,7 @@ export default class BarChartDemoContainer extends React.PureComponent<any, Line
             this.setState({
                 BarChartData: this._updateData(this.state.BarChartData)
             });
-        }, 5000);
+        }, 1000);
     }
 
     render() {
@@ -61,7 +65,9 @@ export default class BarChartDemoContainer extends React.PureComponent<any, Line
         const state = this.state;
 
         return (
-            <ChartContainer svgHeight={500} svgWidth={400}>
+            <ChartContainer svgHeight={300} svgWidth={800}>
+                <AxisLeft data={state.BarChartData} />
+                <AxisBottom data={state.BarChartData} scaleType={ ScaleType.Band } />
                 <BarChart data={state.BarChartData} fill="#1B813E" />
             </ChartContainer>
         );

@@ -39,7 +39,7 @@ export default class AxisBottom extends React.PureComponent<IProps, IState> {
             case ScaleType.Band:
                 xScale = d3.scaleBand<string>()
                          .range([0, canvasWidth])
-                         .paddingInner(.2);
+                         .padding(.2);
                 break;
             case ScaleType.Time:
                 xScale = d3.scaleTime()

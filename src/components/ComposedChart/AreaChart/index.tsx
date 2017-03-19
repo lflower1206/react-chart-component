@@ -6,7 +6,8 @@ import { IProps, IState, ILineSeries } from "./model";
 
 export default class AreaChart extends React.PureComponent<IProps, IState> {
 
-    path: SVGPathElement;
+    area: SVGPathElement;
+    tailArea: SVGPathElement;
     previousData: List<ILineSeries>;
 
     constructor(props: IProps) {
@@ -51,14 +52,21 @@ export default class AreaChart extends React.PureComponent<IProps, IState> {
         xScale.domain([list[0].time, list[list.length - 1].time]);
         yScale.domain([0, d3.max<ILineSeries, number>(list, data => data.value * 1.5 )]);
 
-        d3.select<SVGPathElement, ILineSeries>(this.path)
+        d3.select<SVGPathElement, ILineSeries>(this.area)
             .datum(list)
-            .attr("id", "linePath-".concat(this.props.uuid))
+            .attr("id", "areaPath-".concat(this.props.uuid))
             .style("fill", this.props.fill)
             .style("stroke", this.props.stroke)
             .style("stroke-width", this.props.strokeWidth)
             .style("fill-opacity", this.props.fillOpacity)
             .attr("d", area);
+
+        d3.select<SVGPathElement, ILineSeries>(this.tailArea)
+            .attr("id", "tailAreaPath-".concat(this.props.uuid))
+            .style("fill", this.props.fill)
+            .style("stroke", this.props.stroke)
+            .style("stroke-width", this.props.strokeWidth)
+            .style("fill-opacity", this.props.fillOpacity);
 
         this.previousData = data;
 
@@ -66,40 +74,72 @@ export default class AreaChart extends React.PureComponent<IProps, IState> {
 
     _repaint(data: List<ILineSeries>) {
         const { xScale, yScale, area } = this.state;
-        const lastPreviousData = this.previousData.last();
-        const startIndex = data.findIndex(value => value.time.getTime() === lastPreviousData.time.getTime());
-        const list = this._appendTail(this.previousData, data, startIndex).toArray();
-        const range = list[list.length - 1].time.getTime() - xScale.domain()[1].getTime();
-        const tranlsateRange = xScale.domain()[0].getTime() - range;
-        const d3Path = d3.select<SVGPathElement, ILineSeries>(this.path);
+        const dataArray = data.toArray();
+        const tailData = this._getTailData(data);
+        const translateRange = this._getTranslateRange(tailData);
+        const mergedData = this._mergeData(tailData);
 
-        yScale.domain([0, d3.max<ILineSeries, number>(list, data => data.value * 1.5 )]);
+        const areaPath = d3.select<SVGPathElement, ILineSeries>(this.area);
+        const tailAreaPath = d3.select<SVGPathElement, ILineSeries>(this.tailArea);
 
-        d3Path.datum(list)
+        yScale.domain([0, d3.max<ILineSeries, number>(dataArray, data => data.value * 1.5 )]);
+
+        tailAreaPath
+            .datum(tailData.toArray())
+                .attr("d", area)
+                .transition()
+                    .duration(500)
+                    .ease(d3.easeLinear)
+                    .attr("transform", "translate(" + xScale(new Date(translateRange)) + ",0)");
+
+        areaPath
+            .datum(this.previousData.toArray())
             .transition()
                 .duration(500)
                 .ease(d3.easeLinear)
                 .attr("d", area)
-                .attr("transform", "translate(" + xScale(new Date(tranlsateRange)) + ",0)")
+                .attr("transform", "translate(" + xScale(new Date(translateRange)) + ",0)")
             .on("end", function () {
-                const list = data.toArray();
-                xScale.domain([list[0].time, list[list.length - 1].time]);
-                d3Path
+
+                areaPath
                     .datum(data.toArray())
-                    .attr("transform", null)
                     .attr("d", area);
+
+                tailAreaPath
+                    .attr("d", "");
             });
 
         this.previousData = data;
     }
 
-    _appendTail(sourceList: List<ILineSeries>, targetList: List<ILineSeries>, startIndex: number): List<ILineSeries> {
+    _getTailData(data: List<ILineSeries>): List<ILineSeries> {
+        let list = List<ILineSeries>();
 
-        for (let index = startIndex + 1 ; index < targetList.size ; index++) {
-            sourceList = sourceList.push(targetList.get(index));
+        const { xScale } = this.state;
+        const startIndex = data.findIndex(value => value.time.getTime() === xScale.domain()[1].getTime());
+
+        for (let index = startIndex ; index < data.size ; index++) {
+            list = list.push(data.get(index));
         }
 
-        return sourceList;
+        return list;
+    }
+
+    _getTranslateRange(tailData: List<ILineSeries>): number {
+        const { xScale } = this.state;
+        const timeRange = tailData.last().time.getTime() - xScale.domain()[1].getTime();
+
+        return xScale.domain()[0].getTime() - timeRange;
+    }
+
+    _mergeData(tailData: List<ILineSeries>): List<ILineSeries> {
+        let list = this.previousData;
+
+        tailData.slice(1).forEach( data => {
+            list = list.push(data);
+        });
+
+        return list;
     }
 
     componentWillMount() {
@@ -121,7 +161,8 @@ export default class AreaChart extends React.PureComponent<IProps, IState> {
     render() {
         return (
             <g clipPath={`url(#${this.props.clipPathID})`}>
-                <path ref={ (path) => { this.path = path as SVGPathElement; } }></path>
+                <path ref={ (area) => { this.area = area as SVGPathElement; } }></path>
+                <path ref={ (tailArea) => { this.tailArea = tailArea as SVGPathElement; } }></path>
             </g>
         );
     }

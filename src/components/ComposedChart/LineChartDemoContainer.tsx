@@ -7,6 +7,7 @@ import { ScaleType } from "./Axis/model";
 
 import ChartContainer from "./ChartContainer/";
 import LineChart from "./LineChart/";
+import AreaChart from "./AreaChart/";
 
 import { ILineSeries } from "./LineChart/model";
 
@@ -70,7 +71,9 @@ export default class LineChartDemoContainer extends React.PureComponent<any, Lin
             <ChartContainer svgHeight={300} svgWidth={800}>
                 <AxisLeft data={state.lineChartData1} />
                 <AxisBottom data={state.lineChartData1} scaleType={ ScaleType.Time } />
+                <AreaChart data={state.lineChartData1} fill="#E59FA1" fillOpacity="1" />
                 <LineChart data={state.lineChartData1} stroke="#CB4042" />
+                <AreaChart data={state.lineChartData2} fill="#8CC09D" fillOpacity="1" />
                 <LineChart data={state.lineChartData2} stroke="#1B813E"/>
             </ChartContainer>
         );

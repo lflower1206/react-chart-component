@@ -77,7 +77,6 @@ export default class AreaChart extends React.PureComponent<IProps, IState> {
         const dataArray = data.toArray();
         const tailData = this._getTailData(data);
         const translateRange = this._getTranslateRange(tailData);
-        const mergedData = this._mergeData(tailData);
 
         const areaPath = d3.select<SVGPathElement, ILineSeries>(this.area);
         const tailAreaPath = d3.select<SVGPathElement, ILineSeries>(this.tailArea);
@@ -99,17 +98,19 @@ export default class AreaChart extends React.PureComponent<IProps, IState> {
                 .ease(d3.easeLinear)
                 .attr("d", area)
                 .attr("transform", "translate(" + xScale(new Date(translateRange)) + ",0)")
-            .on("end", function () {
+            .on("end", () => {
 
                 areaPath
-                    .datum(data.toArray())
+                    .datum(dataArray)
                     .attr("d", area);
 
                 tailAreaPath
-                    .attr("d", "");
-            });
+                    .attr("d", "")
+                    .attr("transform", null);
 
-        this.previousData = data;
+                xScale.domain([data.first().time, data.last().time]);
+                this.previousData = data;
+            });
     }
 
     _getTailData(data: List<ILineSeries>): List<ILineSeries> {
@@ -130,16 +131,6 @@ export default class AreaChart extends React.PureComponent<IProps, IState> {
         const timeRange = tailData.last().time.getTime() - xScale.domain()[1].getTime();
 
         return xScale.domain()[0].getTime() - timeRange;
-    }
-
-    _mergeData(tailData: List<ILineSeries>): List<ILineSeries> {
-        let list = this.previousData;
-
-        tailData.slice(1).forEach( data => {
-            list = list.push(data);
-        });
-
-        return list;
     }
 
     componentWillMount() {

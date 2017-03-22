@@ -11,6 +11,7 @@ import { IBarData } from "../BarChart/model";
 
 interface IProps {
     readonly canvasHeight?: number;
+    readonly canvasWidth ?: number;
     readonly data:          PropsDataType;
     readonly ticks?:        number;
 };
@@ -46,6 +47,7 @@ export default class AxisLeft extends React.PureComponent<IProps, IState> {
     }
 
     _paint(list: ILineSeries[] | IBarData[]) {
+        const { canvasWidth } = this.props;
         const { yScale } = this.state;
         const axisLeft = d3.select<SVGGElement, number>(this.group);
 
@@ -53,7 +55,9 @@ export default class AxisLeft extends React.PureComponent<IProps, IState> {
 
         axisLeft.transition()
                     .duration(500)
-                    .call(d3.axisLeft(yScale).ticks(this.props.ticks));
+                    .call(d3.axisLeft(yScale).ticks(this.props.ticks).tickSizeOuter(0).tickSizeInner(-canvasWidth));
+
+        axisLeft.select("path.domain").attr("stroke", null);
     }
 
     componentWillMount() {

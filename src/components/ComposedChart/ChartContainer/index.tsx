@@ -45,9 +45,13 @@ export default class ChartContainer extends React.PureComponent<IProps, IState> 
 
     _draw() {
 
-        const svgMargin = this.state.svgMargin;
+        const { canvasWidth, svgMargin } = this.state;
 
         d3.select(this.canvas).attr("transform", "translate(" + svgMargin.left + "," + svgMargin.top + ")");
+        d3.select(this.rectClip)
+            .transition()
+            .duration(500)
+            .attr("width", canvasWidth);
     }
 
     componentWillMount() {
@@ -89,7 +93,7 @@ export default class ChartContainer extends React.PureComponent<IProps, IState> 
                 <g id={ this.canvasID } ref={ canvas => { this.canvas = canvas as SVGGElement; }} >
                     <defs>
                         <clipPath id={ this.clipPathID } ref={ clipPath => { this.clipPath = clipPath as SVGClipPathElement; } }>
-                            <rect width={canvasWidth} height={canvasHeight} ref={ rectClip => { this.rectClip = rectClip as SVGRectElement; } }></rect>
+                            <rect width="0" height={canvasHeight} ref={ rectClip => { this.rectClip = rectClip as SVGRectElement; } }></rect>
                         </clipPath>
                     </defs>
                     { childrenWithCustomProps }
